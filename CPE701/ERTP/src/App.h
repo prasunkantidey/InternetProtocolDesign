@@ -5,22 +5,21 @@
  *      Author: pregis
  */
 
+#include <iostream>
+
 #ifndef APP_H_
 #define APP_H_
 
-#include <iostream>
-
-class App
-{
+class App {
 public:
-  App ();
-  virtual
-  ~App ();
+	App();
+	virtual
+	~App();
 
-  /*
-   * Print info
-   */
-  void Debug();
+	/*
+	 * Print info
+	 */
+	void Debug();
 };
 
 #endif /* APP_H_ */

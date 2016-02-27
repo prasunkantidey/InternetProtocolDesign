@@ -7,19 +7,16 @@
 
 #include "App.h"
 
-App::App ()
-{
-  // TODO Auto-generated constructor stub
+App::App() {
+	// TODO Auto-generated constructor stub
 
 }
 
-App::~App ()
-{
-  // TODO Auto-generated destructor stub
+App::~App() {
+	// TODO Auto-generated destructor stub
 }
 
-void App::Debug()
-{
-  std::cout << "--- APP debug:" << std::endl;
-  // TODO print stuff
+void App::Debug() {
+	std::cout << "--- APP debug:" << std::endl;
+	// TODO print stuff
 }

@@ -5,22 +5,21 @@
  *      Author: pregis
  */
 
+#include <iostream>
+
 #ifndef LINKLAYER_H_
 #define LINKLAYER_H_
 
-#include <iostream>
-
-class LinkLayer
-{
+class LinkLayer {
 public:
-  LinkLayer ();
-  virtual
-  ~LinkLayer ();
+	LinkLayer();
+	virtual
+	~LinkLayer();
 
-  /*
-   * Print info
-   */
-  void Debug();
+	/*
+	 * Print info
+	 */
+	void Debug();
 };
 
 #endif /* LINKLAYER_H_ */

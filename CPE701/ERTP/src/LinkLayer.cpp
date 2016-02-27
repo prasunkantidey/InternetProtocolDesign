@@ -7,19 +7,16 @@
 
 #include "LinkLayer.h"
 
-LinkLayer::LinkLayer ()
-{
-  // TODO Auto-generated constructor stub
+LinkLayer::LinkLayer() {
+	// TODO Auto-generated constructor stub
 
 }
 
-LinkLayer::~LinkLayer ()
-{
-  // TODO Auto-generated destructor stub
+LinkLayer::~LinkLayer() {
+	// TODO Auto-generated destructor stub
 }
 
-void LinkLayer::Debug()
-{
-  std::cout << "--- LINK debug:" << std::endl;
-  // TODO print stuff
+void LinkLayer::Debug() {
+	std::cout << "--- LINK debug:" << std::endl;
+	// TODO print stuff
 }

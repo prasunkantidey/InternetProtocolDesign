@@ -5,22 +5,21 @@
  *      Author: pregis
  */
 
+#include <iostream>
+
 #ifndef NETWORKLAYER_H_
 #define NETWORKLAYER_H_
 
-#include <iostream>
-
-class NetworkLayer
-{
+class NetworkLayer {
 public:
-  NetworkLayer ();
-  virtual
-  ~NetworkLayer ();
+	NetworkLayer();
+	virtual
+	~NetworkLayer();
 
-  /*
-   * Print info
-   */
-  void Debug();
+	/*
+	 * Print info
+	 */
+	void Debug();
 };
 
 #endif /* NETWORKLAYER_H_ */

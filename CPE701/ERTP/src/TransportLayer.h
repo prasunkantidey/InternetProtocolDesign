@@ -5,10 +5,10 @@
  *      Author: pregis
  */
 
+#include <iostream>
+
 #ifndef TRANSPORTLAYER_H_
 #define TRANSPORTLAYER_H_
-
-#include <iostream>
 
 class TransportLayer
 {
