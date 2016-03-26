@@ -20,14 +20,22 @@ public class CPE701 {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int nID = 0;
 		if (args.length == 0) {
 			System.out.println("Enter the NID: ");
-			Scanner sc = new Scanner(System.in);
-			if (sc.hasNext()) {
-				nID = sc.nextInt();
+			while (nID == 0) {
+				try {
+					nID = Integer.parseInt(br.readLine());
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+					System.out.println("Invalid Input: NID must be a number.");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.out.println("Invalid Input.");
+				}
 			}
-			sc.close();
 		} else {
 			nID = Integer.parseInt(args[0]);
 		}
@@ -58,32 +66,37 @@ public class CPE701 {
 			e.printStackTrace();
 		}
 
-		PrintMenu menu = new PrintMenu();
+		PrintMenu menu = new PrintMenu(br);
 		menu.printHelp();
 		while (true) {
 			String inputTemp = menu.getUserInput();
 			List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
 
-			switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
-			case HELP:
-				menu.printHelp();
-				break;
-			case START_SERVICE:
-				if (input.size() == 1) {
-					System.out.println("Please input MAX Connection number:");
-					Scanner sc = new Scanner(System.in);
-					int temp = 0;
-					if (sc.hasNext())
-						temp = sc.nextInt();
-					if (temp <= 0)
-						System.out.println("Bad argument: MAX_CONN must be greater than zero.");
-					else
-						sh.setMaxConnections(temp);
-					sc.close();
-				} else if (Integer.parseInt(input.get(1)) <= 0) {
-					System.out.println("Bad argument: MAX_CONN must be greater than zero.");
-				} else {
-					sh.setMaxConnections(Integer.parseInt(input.get(1)));
+			try {
+				switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
+				case HELP:
+					menu.printHelp();
+					break;
+				case START_SERVICE:
+					if (input.size() == 1 || Integer.parseInt(input.get(1)) <= 0) {
+						int temp = 0;
+						while (temp <= 0) {
+							System.out.println("Please input MAX Connection number:");
+							try {
+								temp = Integer.parseInt(br.readLine());
+							} catch (NumberFormatException | IOException e) {
+								// TODO Auto-generated catch block
+								//e.printStackTrace();
+								System.out.println("Bad argument: MAX_CONN must be a Number");
+							}
+							if (temp <= 0)
+								System.out.println("Bad argument: MAX_CONN must be greater than zero.");
+							else
+								sh.setMaxConnections(temp);
+						}
+					} else {
+						sh.setMaxConnections(Integer.parseInt(input.get(1)));
+					}
 					for (ITCConfiguration itcConfiguration : itcConfigList) {
 						if (itcConfiguration.getNodeId() == nID) {
 							phy.setHostname(itcConfiguration.getNodeHostName());
@@ -98,35 +111,38 @@ public class CPE701 {
 									itcConfigList.get(itcConfiguration.getSecondConnectedNode() - 1).getUdpPort());
 						}
 					}
+					break;
+				case STOP_SERVICE:
+					break;
+				case CONNECT:
+					if (nID == 1) {
+						phy.send();
+					} else if (nID == 2) {
+						phy.receive();
+					}
+					break;
+				case CLOSE:
+					break;
+				case DOWNLOAD:
+					break;
+				case LINK_UP:
+					break;
+				case LINK_DOWN:
+					break;
+				case ROUTE_TABLE:
+					break;
+				case SET_GARBLER:
+					break;
+				case DEBUG:
+					break;
+				default:
+					System.out.println("Invalid input. Please check \"help\"");
+					break;
 				}
-				break;
-			case STOP_SERVICE:
-				break;
-			case CONNECT:
-				if (nID == 1) {
-					phy.send();
-				} else if (nID == 2) {
-					phy.receive();
-				}
-				break;
-			case CLOSE:
-				break;
-			case DOWNLOAD:
-				break;
-			case LINK_UP:
-				break;
-			case LINK_DOWN:
-				break;
-			case ROUTE_TABLE:
-				break;
-			case SET_GARBLER:
-				break;
-			case DEBUG:
-				break;
-			default:
-				System.out.println("Invalid Command. Please try \"help\"");
-				break;
+			} catch (Exception e) {
+				System.out.println("Invalid input. Please check \"help\"");
 			}
+
 		}
 
 	}
@@ -134,7 +150,10 @@ public class CPE701 {
 }
 
 class PrintMenu {
-	public PrintMenu() {
+	BufferedReader br;
+
+	public PrintMenu(BufferedReader br) {
+		this.br = br;
 	}
 
 	void printHelp() {
@@ -158,10 +177,9 @@ class PrintMenu {
 
 	String getUserInput() {
 		System.out.print("Enter command> ");
-		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 		String input = "";
 		try {
-			input = bf.readLine();
+			input = br.readLine();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
