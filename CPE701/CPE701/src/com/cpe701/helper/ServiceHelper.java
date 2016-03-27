@@ -1,5 +1,7 @@
 package com.cpe701.helper;
 
+import com.cpe701.layers.Packet;
+
 public class ServiceHelper implements Layer{
 	
 	// By default, assuming the sample ITC file
@@ -87,6 +89,17 @@ public class ServiceHelper implements Layer{
 	 */
 	public boolean linkUp(int nid){
 		return true;
+	}
+
+
+	public void send(String packet) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void receive(String packet) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

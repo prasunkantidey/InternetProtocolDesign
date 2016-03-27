@@ -3,150 +3,197 @@ package com.cpe701.helper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import com.cpe701.layers.PhysicalLayerViaUDP;
+import com.cpe701.layers.AppLayer;
+import com.cpe701.layers.LinkLayer;
+import com.cpe701.layers.NetworkLayer;
+import com.cpe701.layers.Packet;
+import com.cpe701.layers.PhysicalLayer;
+import com.cpe701.layers.TransportLayer;
 
 public class CPE701 {
 
 	public enum UserCommand {
-		HELP, START_SERVICE, STOP_SERVICE, CONNECT, CLOSE, DOWNLOAD, SET_GARBLER, ROUTE_TABLE, LINK_UP, LINK_DOWN, DEBUG;
+		HELP, START_SERVICE, STOP_SERVICE, CONNECT, CLOSE, DOWNLOAD, SET_GARBLER, ROUTE_TABLE, LINK_UP, LINK_DOWN, DEBUG, EXIT;
 	};
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		List<ITCConfiguration> itcConfigList = new ArrayList<>();
 		int nID = 0;
-		if (args.length == 0) {
-			System.out.println("Enter the NID: ");
-			while (nID == 0) {
-				try {
-					nID = Integer.parseInt(br.readLine());
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					//e.printStackTrace();
-					System.out.println("Invalid Input: NID must be a number.");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					System.out.println("Invalid Input.");
-				}
-			}
+
+		if (args.length < 2) {
+			System.out.println("Missing arguments: local_node_id itc_file");
+			System.exit(0);
 		} else {
 			nID = Integer.parseInt(args[0]);
-		}
+			Path filePath = Paths.get(args[1]);
+			try {
+				Scanner sc = new Scanner(filePath);
+				while (sc.hasNext()) {
+					ITCConfiguration itcConfigTemp = new ITCConfiguration();
 
-		ServiceHelper sh = new ServiceHelper();
-		PhysicalLayerViaUDP phy = new PhysicalLayerViaUDP();
+					itcConfigTemp.setNodeId(sc.nextInt());
+					itcConfigTemp.setNodeHostName(sc.next());
+					itcConfigTemp.setUdpPort(sc.nextInt());
+					itcConfigTemp.setFirstConnectedNode(sc.nextInt());
+					itcConfigTemp.setSecondConnectedNode(sc.nextInt());
+					itcConfigTemp.setLinkMTU(sc.nextInt());
 
-		List<ITCConfiguration> itcConfigList = new ArrayList<>();
-
-		Path filePath = Paths.get("ITC");
-		try {
-			Scanner sc = new Scanner(filePath);
-			while (sc.hasNext()) {
-				ITCConfiguration itcConfigTemp = new ITCConfiguration();
-
-				itcConfigTemp.setNodeId(sc.nextInt());
-				itcConfigTemp.setNodeHostName(sc.next());
-				itcConfigTemp.setUdpPort(sc.nextInt());
-				itcConfigTemp.setFirstConnectedNode(sc.nextInt());
-				itcConfigTemp.setSecondConnectedNode(sc.nextInt());
-				itcConfigTemp.setLinkMTU(sc.nextInt());
-
-				itcConfigList.add(itcConfigTemp);
+					itcConfigList.add(itcConfigTemp);
+				}
+				sc.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			sc.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 
+		/*
+		 * can we create these outside the main? If so, i think the code would be cleaner, what do you think?
+		 */
+		PhysicalLayer phy = new PhysicalLayer();
+		LinkLayer link = new LinkLayer();
+		NetworkLayer net = new NetworkLayer();
+		TransportLayer transport = new TransportLayer();
+		AppLayer app = new AppLayer();
+		//  So the layers can communicate between themselves
+		app.setTransport(transport);
+		transport.setNet(net);
+		transport.setApp(app);
+		net.setLink(link);
+		net.setTransport(transport);
+		link.setPhy(phy);
+		link.setNet(net);
+		phy.setLink(link);
+
+
+		/*
+		 * Start UDP server to listen to clients
+		 */
+		final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
+
+		Runnable serverTask = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					ServerSocket serverSocket = new ServerSocket(8000);						// CHANGE port to my port from ITC file
+					while (true) {
+						Socket clientSocket = serverSocket.accept();
+						clientProcessingPool.submit(new ClientTask(clientSocket));
+					}
+				} catch (IOException e) {
+					System.err.println("Unable to process client request");
+					e.printStackTrace();
+				}
+			}
+		};
+		Thread serverThread = new Thread(serverTask);
+		serverThread.start();
+
+
+
+
+
+		/*
+		 * UI!
+		 */
 		PrintMenu menu = new PrintMenu(br);
 		menu.printHelp();
-		while (true) {
-			String inputTemp = menu.getUserInput();
-			List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
 
-			try {
-				switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
-				case HELP:
-					menu.printHelp();
-					break;
-				case START_SERVICE:
-					if (input.size() == 1 || Integer.parseInt(input.get(1)) <= 0) {
-						int temp = 0;
-						while (temp <= 0) {
-							System.out.println("Please input MAX Connection number:");
-							try {
-								temp = Integer.parseInt(br.readLine());
-							} catch (NumberFormatException | IOException e) {
-								// TODO Auto-generated catch block
-								//e.printStackTrace();
-								System.out.println("Bad argument: MAX_CONN must be a Number");
-							}
-							if (temp <= 0)
-								System.out.println("Bad argument: MAX_CONN must be greater than zero.");
-							else
-								sh.setMaxConnections(temp);
-						}
-					} else {
-						sh.setMaxConnections(Integer.parseInt(input.get(1)));
+		ServerSocket listener = new ServerSocket(9898); //REPLACE PORT with the number from ITC
+
+		try {
+			while (true) {
+
+
+				String inputTemp = menu.getUserInput();
+				List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
+
+				//				new UDPReceiver(listener.accept(), phy).start();
+
+				try {
+					switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
+					case HELP:
+						menu.printHelp();
+						break;
+					case START_SERVICE:
+						break;
+					case STOP_SERVICE:
+						break;
+					case CONNECT:
+						break;
+					case CLOSE:
+						break;
+					case DOWNLOAD:
+						break;
+					case LINK_UP:
+						break;
+					case LINK_DOWN:
+						break;
+					case ROUTE_TABLE:
+						break;
+					case SET_GARBLER:
+						break;
+					case DEBUG:
+						app.send("hello!");
+						break;
+					case EXIT:
+						System.exit(0);
+						break;
+					default:
+						System.out.println("Invalid input. Please check \"help\"");
+						break;
 					}
-					for (ITCConfiguration itcConfiguration : itcConfigList) {
-						if (itcConfiguration.getNodeId() == nID) {
-							phy.setHostname(itcConfiguration.getNodeHostName());
-							phy.setMyPort(itcConfiguration.getUdpPort());
-							phy.setDestHostname1(
-									itcConfigList.get(itcConfiguration.getFirstConnectedNode() - 1).getNodeHostName());
-							phy.setDestPort1(
-									itcConfigList.get(itcConfiguration.getFirstConnectedNode() - 1).getUdpPort());
-							phy.setDestHostname2(
-									itcConfigList.get(itcConfiguration.getSecondConnectedNode() - 1).getNodeHostName());
-							phy.setDestPort2(
-									itcConfigList.get(itcConfiguration.getSecondConnectedNode() - 1).getUdpPort());
-						}
-					}
-					break;
-				case STOP_SERVICE:
-					break;
-				case CONNECT:
-					if (nID == 1) {
-						phy.send();
-					} else if (nID == 2) {
-						phy.receive();
-					}
-					break;
-				case CLOSE:
-					break;
-				case DOWNLOAD:
-					break;
-				case LINK_UP:
-					break;
-				case LINK_DOWN:
-					break;
-				case ROUTE_TABLE:
-					break;
-				case SET_GARBLER:
-					break;
-				case DEBUG:
-					break;
-				default:
+				} catch (Exception e) {
 					System.out.println("Invalid input. Please check \"help\"");
-					break;
 				}
-			} catch (Exception e) {
-				System.out.println("Invalid input. Please check \"help\"");
-			}
 
+
+			}
+		} finally {
+			listener.close();
 		}
 
 	}
 
+
+
+
+
+
+	private class ClientTask implements Runnable {
+		private final Socket clientSocket;
+
+		private ClientTask(Socket clientSocket) {
+			this.clientSocket = clientSocket;
+		}
+
+		@Override
+		public void run() {
+			System.out.println("Got a client !");
+
+			// Do whatever required to process the client's request
+
+			try {
+				clientSocket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
 
 class PrintMenu {
