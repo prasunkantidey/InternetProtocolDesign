@@ -18,7 +18,6 @@ import java.util.concurrent.Executors;
 import com.cpe701.layers.AppLayer;
 import com.cpe701.layers.LinkLayer;
 import com.cpe701.layers.NetworkLayer;
-import com.cpe701.layers.Packet;
 import com.cpe701.layers.PhysicalLayer;
 import com.cpe701.layers.TransportLayer;
 
@@ -29,9 +28,10 @@ public class CPE701 {
 	};
 
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		List<ITCConfiguration> itcConfigList = new ArrayList<>();
+		ITCConfiguration localITCInfo = new ITCConfiguration();
+		
 		int nID = 0;
 
 		if (args.length < 2) {
@@ -44,32 +44,34 @@ public class CPE701 {
 				Scanner sc = new Scanner(filePath);
 				while (sc.hasNext()) {
 					ITCConfiguration itcConfigTemp = new ITCConfiguration();
-
 					itcConfigTemp.setNodeId(sc.nextInt());
 					itcConfigTemp.setNodeHostName(sc.next());
 					itcConfigTemp.setUdpPort(sc.nextInt());
 					itcConfigTemp.setFirstConnectedNode(sc.nextInt());
 					itcConfigTemp.setSecondConnectedNode(sc.nextInt());
 					itcConfigTemp.setLinkMTU(sc.nextInt());
-
 					itcConfigList.add(itcConfigTemp);
+					
+					if (itcConfigTemp.getNodeId() == nID) {
+						localITCInfo = itcConfigTemp;
+					}
 				}
 				sc.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 
 		/*
-		 * can we create these outside the main? If so, i think the code would be cleaner, what do you think?
+		 * Create layers
 		 */
 		PhysicalLayer phy = new PhysicalLayer();
 		LinkLayer link = new LinkLayer();
 		NetworkLayer net = new NetworkLayer();
 		TransportLayer transport = new TransportLayer();
 		AppLayer app = new AppLayer();
-		//  So the layers can communicate between themselves
+		
+		//  Assign pointers to adjacent layers so they can talk to each other
 		app.setTransport(transport);
 		transport.setNet(net);
 		transport.setApp(app);
@@ -78,33 +80,15 @@ public class CPE701 {
 		link.setPhy(phy);
 		link.setNet(net);
 		phy.setLink(link);
+		
+		
+		
 
 
 		/*
 		 * Start UDP server to listen to clients
 		 */
-		final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
-
-		Runnable serverTask = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ServerSocket serverSocket = new ServerSocket(8000);						// CHANGE port to my port from ITC file
-					while (true) {
-						Socket clientSocket = serverSocket.accept();
-						clientProcessingPool.submit(new ClientTask(clientSocket));
-					}
-				} catch (IOException e) {
-					System.err.println("Unable to process client request");
-					e.printStackTrace();
-				}
-			}
-		};
-		Thread serverThread = new Thread(serverTask);
-		serverThread.start();
-
-
-
+		new UDPReceiver().startServer(localITCInfo.getUdpPort(), phy);
 
 
 		/*
@@ -113,16 +97,13 @@ public class CPE701 {
 		PrintMenu menu = new PrintMenu(br);
 		menu.printHelp();
 
-		ServerSocket listener = new ServerSocket(9898); //REPLACE PORT with the number from ITC
 
-		try {
+		
 			while (true) {
 
 
 				String inputTemp = menu.getUserInput();
 				List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
-
-				//				new UDPReceiver(listener.accept(), phy).start();
 
 				try {
 					switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
@@ -151,6 +132,7 @@ public class CPE701 {
 						app.send("hello!");
 						break;
 					case EXIT:
+						System.out.println("Exiting...\n");
 						System.exit(0);
 						break;
 					default:
@@ -163,36 +145,8 @@ public class CPE701 {
 
 
 			}
-		} finally {
-			listener.close();
-		}
+		
 
-	}
-
-
-
-
-
-
-	private class ClientTask implements Runnable {
-		private final Socket clientSocket;
-
-		private ClientTask(Socket clientSocket) {
-			this.clientSocket = clientSocket;
-		}
-
-		@Override
-		public void run() {
-			System.out.println("Got a client !");
-
-			// Do whatever required to process the client's request
-
-			try {
-				clientSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }
 
