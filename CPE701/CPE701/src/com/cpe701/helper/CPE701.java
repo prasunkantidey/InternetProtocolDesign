@@ -3,18 +3,12 @@ package com.cpe701.helper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.cpe701.layers.AppLayer;
 import com.cpe701.layers.LinkLayer;
 import com.cpe701.layers.NetworkLayer;
@@ -31,7 +25,7 @@ public class CPE701 {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		List<ITCConfiguration> itcConfigList = new ArrayList<>();
 		ITCConfiguration localITCInfo = new ITCConfiguration();
-		
+
 		int nID = 0;
 
 		if (args.length < 2) {
@@ -51,7 +45,7 @@ public class CPE701 {
 					itcConfigTemp.setSecondConnectedNode(sc.nextInt());
 					itcConfigTemp.setLinkMTU(sc.nextInt());
 					itcConfigList.add(itcConfigTemp);
-					
+
 					if (itcConfigTemp.getNodeId() == nID) {
 						localITCInfo = itcConfigTemp;
 					}
@@ -70,7 +64,7 @@ public class CPE701 {
 		NetworkLayer net = new NetworkLayer();
 		TransportLayer transport = new TransportLayer();
 		AppLayer app = new AppLayer();
-		
+
 		//  Assign pointers to adjacent layers so they can talk to each other
 		app.setTransport(transport);
 		transport.setNet(net);
@@ -80,9 +74,9 @@ public class CPE701 {
 		link.setPhy(phy);
 		link.setNet(net);
 		phy.setLink(link);
-		
-		
-		
+
+
+
 
 
 		/*
@@ -98,54 +92,67 @@ public class CPE701 {
 		menu.printHelp();
 
 
-		
-			while (true) {
+
+		while (true) {
 
 
-				String inputTemp = menu.getUserInput();
-				List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
+			String inputTemp = menu.getUserInput();
+			List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
 
-				try {
-					switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
-					case HELP:
-						menu.printHelp();
-						break;
-					case START_SERVICE:
-						break;
-					case STOP_SERVICE:
-						break;
-					case CONNECT:
-						break;
-					case CLOSE:
-						break;
-					case DOWNLOAD:
-						break;
-					case LINK_UP:
-						break;
-					case LINK_DOWN:
-						break;
-					case ROUTE_TABLE:
-						break;
-					case SET_GARBLER:
-						break;
-					case DEBUG:
-						app.send("hello!");
-						break;
-					case EXIT:
-						System.out.println("Exiting...\n");
-						System.exit(0);
-						break;
-					default:
+			try {
+				switch (UserCommand.valueOf(input.get(0).toUpperCase())) {
+				case HELP:
+					menu.printHelp();
+					break;
+				case START_SERVICE:
+					break;
+				case STOP_SERVICE:
+					break;
+				case CONNECT:
+					break;
+				case CLOSE:
+					break;
+				case DOWNLOAD:
+					break;
+				case LINK_UP:
+					break;
+				case LINK_DOWN:
+					break;
+				case ROUTE_TABLE:
+					break;
+				case SET_GARBLER:
+					if (input.size() !=3) {
 						System.out.println("Invalid input. Please check \"help\"");
-						break;
+					}else{
+						if (Integer.parseInt(input.get(1)) < 0 || Integer.parseInt(input.get(1)) > 100){
+							System.out.println("FAILURE: loss="+input.get(1)+"% bad argument");
+						}else if (Integer.parseInt(input.get(2)) < 0 || Integer.parseInt(input.get(2)) > 100){
+							System.out.println("FAILURE: corruption="+input.get(2)+"% bad argument");
+						}else{
+							phy.setGarblerCorrupt(Integer.parseInt(input.get(2)));
+							phy.setGarblerLoss(Integer.parseInt(input.get(1)));
+							System.out.println("SUCCESS: loss="+input.get(1)+"%, corruption="+input.get(2)+"%");
+						}
 					}
-				} catch (Exception e) {
+					break;
+				case DEBUG:
+					app.send("hello!");
+					break;
+				case EXIT:
+					System.out.println("Exiting...\n");
+					System.exit(0);
+					break;
+				default:
 					System.out.println("Invalid input. Please check \"help\"");
+					break;
 				}
-
-
+			} catch (Exception e) {
+				System.out.println("Invalid input. Please check \"help\"");
 			}
-		
+
+
+		}
+
 
 	}
 }

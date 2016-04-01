@@ -16,7 +16,7 @@ public class LinkLayer implements Layer{
 	public void send(String packet) {
 		String header = "4";
 		this.phy.send(header+packet);
-	}
+	}	
 
 	public void receive(String packet) {
 		System.out.println("LINK: Packet received");
