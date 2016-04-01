@@ -1,14 +1,14 @@
 package com.cpe701.helper;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.cpe701.layers.PhysicalLayer;
+import com.cpe701.packets.Frame;
 
 public class UDPReceiver {
 
@@ -47,12 +47,14 @@ public class UDPReceiver {
 
 		@Override
 		public void run() {
-
-
-
 			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				phy.receive(in.readLine());
+				ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+				try {
+					phy.receive((Frame) in.readObject());
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

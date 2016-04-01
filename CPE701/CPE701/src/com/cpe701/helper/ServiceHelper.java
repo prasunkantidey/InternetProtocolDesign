@@ -91,12 +91,12 @@ public class ServiceHelper implements Layer{
 	}
 
 
-	public void send(String packet) {
+	public void send(Packet packet) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void receive(String packet) {
+	public void receive(Packet packet) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,6 +1,8 @@
 package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
+import com.cpe701.helper.Packet;
+import com.cpe701.packets.Data;
 
 public class AppLayer implements Layer {
 	
@@ -12,12 +14,12 @@ public class AppLayer implements Layer {
 
 	
 	
-	public void send(String packet) {
-		String header = "1";
-		this.transport.send(header+packet);
+	public void send(Packet packet) {
+		Data d = null;
+		this.transport.send(d);
 	}
 
-	public void receive(String packet) {
+	public void receive(Packet packet) {
 		System.out.println("APP: Packet received");
 		System.out.println("MSG RECV: " + packet);
 	}

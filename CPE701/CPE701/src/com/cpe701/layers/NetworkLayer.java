@@ -1,6 +1,8 @@
 package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
+import com.cpe701.helper.Packet;
+import com.cpe701.packets.IPDatagram;
 
 public class NetworkLayer implements Layer {
 	
@@ -13,12 +15,12 @@ public class NetworkLayer implements Layer {
 		System.out.println("Debug from NETWORK");
 	}
 
-	public void send(String packet) {
-		String header = "3";
-		this.link.send(header+packet);
+	public void send(Packet packet) {
+		IPDatagram ipd = null;
+		this.link.send(ipd);
 	}
 
-	public void receive(String packet) {
+	public void receive(Packet packet) {
 		System.out.println("NET: Packet received");
 		this.transport.receive(packet);
 	}

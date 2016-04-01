@@ -1,6 +1,8 @@
 package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
+import com.cpe701.helper.Packet;
+import com.cpe701.packets.Segment;
 
 public class TransportLayer implements Layer{
 
@@ -12,12 +14,12 @@ public class TransportLayer implements Layer{
 		System.out.println("Debug from TRANSPORT");
 	}
 	
-	public void send(String packet) {
-		String header = "2";
-		this.net.send(header+packet);
+	public void send(Packet packet) {
+		Segment s=null;
+		this.net.send(s);
 	}
 
-	public void receive(String packet) {
+	public void receive(Packet packet) {
 		System.out.println("TRA: Packet received");
 		this.app.receive(packet);
 	}

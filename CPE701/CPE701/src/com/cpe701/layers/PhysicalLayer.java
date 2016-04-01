@@ -2,9 +2,11 @@ package com.cpe701.layers;
 
 import java.util.Random;
 
+import com.cpe701.helper.Garbler;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.helper.UDPSender;
+import com.cpe701.packets.Frame;
 
 public class PhysicalLayer implements Layer {
 
@@ -14,29 +16,30 @@ public class PhysicalLayer implements Layer {
 	
 	public void debug() {
 //		System.out.println("Debug from PHY");
-		Garbler g = new Garbler(0, 99);
-		System.out.println(g.garble("Hello"));
+//		Garbler g = new Garbler(0, 99);
+//		System.out.println(g.garble("Hello"));
 	}
 
 	public void send(Packet packet) {
-		String header = "5";
-		String msg;
+		Frame f = new Frame();
+		
 		Garbler g = new Garbler(this.garblerLoss, this.garblerCorrupt);
 		
 		if (!g.drop()){
-			msg = g.garble(header+packet);
+//			f = g.garble(f);
 			
 			String serverAddress = "localhost";
 			int PORT = 17878;
 
-			UDPSender sender = new UDPSender(serverAddress, PORT, msg);
+			UDPSender sender = new UDPSender(serverAddress, PORT, f);
 			sender.start();
 		}
 	}
 
 	public void receive(Packet packet) {
 		System.out.println("PHY: Packet received");
-		this.link.receive(packet);
+		System.out.println("aa: "+((Frame) packet).s);
+//		this.link.receive(packet);
 	}
 
 	/**
@@ -68,45 +71,6 @@ public class PhysicalLayer implements Layer {
 
 	public void setGarblerCorrupt(int garblerCorrupt) {
 		this.garblerCorrupt = garblerCorrupt;
-	}
-
-	private class Garbler {
-		
-		int LOSS=0;
-		int CORRUPT=0;
-
-		Garbler(int l, int c) {
-			this.LOSS = l;
-			this.CORRUPT = c;
-		}
-
-		public boolean drop() {
-			Random r = new Random();
-			
-			if(r.nextInt(101) < this.LOSS){
-				return true;
-			}
-			return false;
-		}
-		
-		public String garble(String msg){
-//			Random r = new Random();
-////			if(r.nextInt(101) < this.CORRUPT){
-//				//int i = r.nextInt(msg.length()+1);//(char) (s.charAt(i) ^ 1)
-//				//msg.replace(msg.charAt(i), (char) (msg.charAt(i) ^ 1));
-////			}
-//				
-//				
-//				
-//				String s = "00011";
-//				char[] chars = new char[s.length()];
-//				for(int i = 0; i < s.length(); i++)
-//				    chars[i] = (char) (s.charAt(i) ^ 1); // flip the bottom bit so 0=>1 and 1=>0
-//				String flipped = new String(chars);	
-//				return flipped;
-			return msg;
-		}
-
 	}
 
 }

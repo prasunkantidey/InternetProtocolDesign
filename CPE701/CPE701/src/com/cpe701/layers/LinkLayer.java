@@ -1,6 +1,8 @@
 package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
+import com.cpe701.helper.Packet;
+import com.cpe701.packets.Frame;
 
 public class LinkLayer implements Layer{
 	
@@ -13,12 +15,12 @@ public class LinkLayer implements Layer{
 		System.out.println("Debug from LINK");
 	}
 
-	public void send(String packet) {
-		String header = "4";
-		this.phy.send(header+packet);
+	public void send(Packet packet) {
+		Frame f = null;
+		this.phy.send(f);
 	}	
 
-	public void receive(String packet) {
+	public void receive(Packet packet) {
 		System.out.println("LINK: Packet received");
 		this.net.receive(packet);
 	}

@@ -136,7 +136,7 @@ public class CPE701 {
 					}
 					break;
 				case DEBUG:
-					app.send("hello!");
+					phy.send(new Packet());
 					break;
 				case EXIT:
 					System.out.println("Exiting...\n");

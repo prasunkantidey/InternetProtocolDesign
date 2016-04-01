@@ -1,19 +1,21 @@
 package com.cpe701.helper;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import com.cpe701.packets.Frame;
 
 public class UDPSender extends Thread {
 	
     private Socket socket;
-    private String msg;
+    private Frame frame;
     
-    public UDPSender(String serverAddress, int PORT, String msg) {
+    public UDPSender(String serverAddress, int PORT, Frame f) {
         try {
 			this.socket = new Socket(serverAddress, PORT);
-			this.msg = msg;
+			this.frame = f;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -26,8 +28,8 @@ public class UDPSender extends Thread {
 
     public void run() {
         try {
-        	PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-        	out.println(this.msg);
+        	ObjectOutputStream out = new ObjectOutputStream(this.socket.getOutputStream());
+        	out.writeObject(this.frame);
             this.socket.close();
         } catch (IOException e) {
             log("Error handling client: " + e);
