@@ -3,26 +3,42 @@ package com.cpe701.layers;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.Frame;
+import com.cpe701.packets.IPDatagram;
 
 public class LinkLayer implements Layer{
 	
 	private PhysicalLayer phy;
 	private NetworkLayer net;
-	
-	
-	
+
 	public void debug() {
 		System.out.println("Debug from LINK");
 	}
 
 	public void send(Packet packet) {
-		Frame f = null;
-		this.phy.send(f);
+		Frame f = new Frame();
+		
+		
+		
+		
+		f.setPayload((IPDatagram) packet);
+		
+		
+		
+		
+		this.phy.send(packet);
 	}	
 
 	public void receive(Packet packet) {
-		System.out.println("LINK: Packet received");
-		this.net.receive(packet);
+		System.out.println("LINK: received");
+		
+		
+		
+		Frame f = (Frame) packet;
+		
+		
+		
+		this.net.receive(f.getPayload());
+		
 	}
 
 	/**

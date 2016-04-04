@@ -17,13 +17,11 @@ public class UDPSender extends Thread {
 			this.socket = new Socket(serverAddress, PORT);
 			this.frame = f;
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        log("New connection at " + socket);
+        log("New connection at " + socket + "\nEnter command> ");
     }
 
     public void run() {
@@ -32,19 +30,17 @@ public class UDPSender extends Thread {
         	out.writeObject(this.frame);
             this.socket.close();
         } catch (IOException e) {
-            log("Error handling client: " + e);
+            log("Error handling client: " + e + "\nEnter command> ");
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
-                log("Couldn't close a socket, what's going on?");
+                log("Couldn't close a socket, what's going on?\nEnter command> ");
             }
-            log("Connection with client closed");
+            log("Connection with client closed\nEnter command> ");
         }
     }
 
-    
-    
     private void log(String message) {
         System.out.println(message);
     }

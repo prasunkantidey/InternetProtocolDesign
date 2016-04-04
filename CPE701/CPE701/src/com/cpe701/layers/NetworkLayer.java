@@ -3,6 +3,7 @@ package com.cpe701.layers;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.IPDatagram;
+import com.cpe701.packets.Segment;
 
 public class NetworkLayer implements Layer {
 	
@@ -16,13 +17,29 @@ public class NetworkLayer implements Layer {
 	}
 
 	public void send(Packet packet) {
-		IPDatagram ipd = null;
-		this.link.send(ipd);
+		IPDatagram i = new IPDatagram();
+		
+		
+		
+		i.setPayload((Segment)packet);
+		
+		
+		
+		
+		this.link.send(i);
 	}
 
 	public void receive(Packet packet) {
 		System.out.println("NET: Packet received");
-		this.transport.receive(packet);
+		
+		
+		
+		IPDatagram i = (IPDatagram) packet;
+		
+		
+		
+		
+		this.transport.receive(i.getPayload());
 	}
 
 	/**
