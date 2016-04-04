@@ -2,6 +2,7 @@ package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
+import com.cpe701.packets.Data;
 import com.cpe701.packets.Segment;
 
 public class TransportLayer implements Layer{
@@ -15,13 +16,26 @@ public class TransportLayer implements Layer{
 	}
 	
 	public void send(Packet packet) {
-		Segment s=null;
+		Segment s = new Segment();
+		
+		
+		
+		s.setPayload((Data)packet);
+		
+		
+		
 		this.net.send(s);
 	}
 
 	public void receive(Packet packet) {
 		System.out.println("TRA: Packet received");
-		this.app.receive(packet);
+		
+		
+		Segment s = (Segment) packet;
+		
+		
+		
+		this.app.receive(s.getPayload());
 	}
 
 	/**

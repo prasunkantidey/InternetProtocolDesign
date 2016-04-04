@@ -1,7 +1,5 @@
 package com.cpe701.layers;
 
-import java.util.Random;
-
 import com.cpe701.helper.Garbler;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
@@ -15,13 +13,13 @@ public class PhysicalLayer implements Layer {
 	private int garblerCorrupt=0;
 	
 	public void debug() {
-//		System.out.println("Debug from PHY");
+		System.out.println("Debug from PHY");
 //		Garbler g = new Garbler(0, 99);
 //		System.out.println(g.garble("Hello"));
 	}
 
 	public void send(Packet packet) {
-		Frame f = new Frame();
+		Frame f = (Frame) packet;
 		
 		Garbler g = new Garbler(this.garblerLoss, this.garblerCorrupt);
 		
@@ -37,9 +35,8 @@ public class PhysicalLayer implements Layer {
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("PHY: Packet received");
-		System.out.println("aa: "+((Frame) packet).s);
-//		this.link.receive(packet);
+		System.out.println("PHY: received");
+		this.link.receive((Frame) packet);
 	}
 
 	/**

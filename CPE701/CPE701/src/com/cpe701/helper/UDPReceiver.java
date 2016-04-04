@@ -12,12 +12,11 @@ import com.cpe701.packets.Frame;
 
 public class UDPReceiver {
 
-
-
 	public void startServer(final int port, final PhysicalLayer phy) {
 		final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
 
 		Runnable serverTask = new Runnable() {
+			@SuppressWarnings("resource")
 			@Override
 			public void run() {
 				try {
@@ -52,7 +51,6 @@ public class UDPReceiver {
 				try {
 					phy.receive((Frame) in.readObject());
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} catch (IOException e1) {
