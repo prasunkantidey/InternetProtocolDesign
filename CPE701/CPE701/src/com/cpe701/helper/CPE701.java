@@ -17,6 +17,7 @@ import com.cpe701.layers.LinkLayer;
 import com.cpe701.layers.NetworkLayer;
 import com.cpe701.layers.PhysicalLayer;
 import com.cpe701.layers.TransportLayer;
+import com.cpe701.packets.Data;
 import com.cpe701.packets.Frame;
 import com.cpe701.packets.IPDatagram;
 
@@ -118,6 +119,11 @@ public class CPE701 {
 				case CLOSE:
 					break;
 				case DOWNLOAD:
+					
+					Data d = new Data();
+					d.setCommand("harry_potter.txt"); // set to user input 2
+					app.send(d);
+
 					break;
 				case LINK_UP:
 					break;
@@ -169,7 +175,7 @@ public class CPE701 {
 					break;
 				}
 			} catch (Exception e) {
-				System.out.println("Invalid input. Please check \"help\"");
+				System.out.println("aInvalid input. Please check \"help\"");
 			}
 
 

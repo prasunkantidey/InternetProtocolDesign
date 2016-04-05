@@ -4,7 +4,9 @@ import com.cpe701.helper.Garbler;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.helper.UDPSender;
+import com.cpe701.packets.Data;
 import com.cpe701.packets.Frame;
+import com.cpe701.packets.IPDatagram;
 
 public class PhysicalLayer implements Layer {
 
@@ -20,6 +22,12 @@ public class PhysicalLayer implements Layer {
 
 	public void send(Packet packet) {
 		Frame f = (Frame) packet;
+		
+		
+		
+
+		
+		
 		
 		Garbler g = new Garbler(this.garblerLoss, this.garblerCorrupt);
 		

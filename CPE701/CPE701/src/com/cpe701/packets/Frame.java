@@ -47,11 +47,12 @@ public class Frame extends Packet {
 	}
 
 	public IPDatagram getPayload() {
-		return h.getIpd();
+		System.out.println("frame get: ");
+		return this.h.getIpd();
 	}
 
 	public void setPayload(IPDatagram ipd) {
-		h.setIpd(ipd);
+		this.h.setIpd(ipd);
 		this.setCRC();
 	}
 
@@ -88,7 +89,7 @@ public class Frame extends Packet {
 		}
 	}
 
-	class HeaderAndData implements Serializable {
+	private class HeaderAndData implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private int dst;
@@ -96,8 +97,8 @@ public class Frame extends Packet {
 		private int len;
 		private IPDatagram ipd;
 		public HeaderAndData() {
-			// TODO Auto-generated constructor stub
 		}
+		
 		public int getDst() {
 			return dst;
 		}
@@ -117,9 +118,11 @@ public class Frame extends Packet {
 			this.len = len;
 		}
 		public IPDatagram getIpd() {
+			System.out.println("header get: ");
 			return ipd;
 		}
 		public void setIpd(IPDatagram ipd) {
+			System.out.println("header set: "+ipd.getPayload().getPayload().getCommand());
 			this.ipd = ipd;
 		}
 	}

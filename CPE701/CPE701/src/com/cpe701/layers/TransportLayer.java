@@ -23,7 +23,6 @@ public class TransportLayer implements Layer{
 		s.setPayload((Data)packet);
 		
 		
-		
 		this.net.send(s);
 	}
 
