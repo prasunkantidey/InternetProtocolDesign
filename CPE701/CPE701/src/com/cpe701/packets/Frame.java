@@ -63,6 +63,10 @@ public class Frame extends Packet {
 		this.updateCRC();
 	}
 
+	public void setCRC(String CRC) {
+		this.CRC = CRC;
+	}
+	
 	public void updateCRC() {
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

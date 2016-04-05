@@ -2,41 +2,35 @@ package com.cpe701.helper;
 
 import java.util.Random;
 
+import com.cpe701.packets.Frame;
+import com.sun.corba.se.impl.ior.ByteBuffer;
+
 public class Garbler {
 
-	int LOSS=0;
-	int CORRUPT=0;
+	private int loss=0;
+	private int corrupt=0;
 
 	public Garbler(int l, int c) {
-		this.LOSS = l;
-		this.CORRUPT = c;
+		this.loss = l;
+		this.corrupt = c;
 	}
 
 	public boolean drop() {
 		Random r = new Random();
 
-		if(r.nextInt(101) < this.LOSS){
+		if(r.nextInt(101) < this.loss){
 			return true;
 		}
 		return false;
 	}
 
-	public String garble(String msg){
-		//			Random r = new Random();
-		////			if(r.nextInt(101) < this.CORRUPT){
-		//				//int i = r.nextInt(msg.length()+1);//(char) (s.charAt(i) ^ 1)
-		//				//msg.replace(msg.charAt(i), (char) (msg.charAt(i) ^ 1));
-		////			}
-		//				
-		//				
-		//				
-		//				String s = "00011";
-		//				char[] chars = new char[s.length()];
-		//				for(int i = 0; i < s.length(); i++)
-		//				    chars[i] = (char) (s.charAt(i) ^ 1); // flip the bottom bit so 0=>1 and 1=>0
-		//				String flipped = new String(chars);	
-		//				return flipped;
-		return msg;
+	public Packet garble(Packet packet){
+		Frame f = (Frame) packet;
+		String garbledCRC = f.getCRC();
+		garbledCRC.replace(garbledCRC.charAt(2), (char)('0'+'9'-garbledCRC.charAt(2)));
+		f.setCRC(garbledCRC);
+		
+		return packet;
 	}
 
 }

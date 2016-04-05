@@ -9,27 +9,27 @@ import com.cpe701.packets.Frame;
 public class PhysicalLayer implements Layer {
 
 	private LinkLayer link;
-	private int garblerLoss=0;
-	private int garblerCorrupt=0;
-	
+	private int garblerLoss = 0;
+	private int garblerCorrupt = 0;
+
 	public void debug() {
 		System.out.println("Debug from PHY");
-//		Garbler g = new Garbler(0, 99);
-//		System.out.println(g.garble("Hello"));
+		// Garbler g = new Garbler(0, 99);
+		// System.out.println(g.garble("Hello"));
 	}
 
 	public void send(Packet packet) {
-		Frame f = (Frame) packet;
-		
+		// Frame f = (Frame) packet;
+
 		Garbler g = new Garbler(this.garblerLoss, this.garblerCorrupt);
-		
-		if (!g.drop()){
-//			f = g.garble(f);
-			
+
+		if (!g.drop()) {
+			Packet f = g.garble(packet);
+
 			String serverAddress = "localhost";
 			int PORT = 17878;
 
-			UDPSender sender = new UDPSender(serverAddress, PORT, f);
+			UDPSender sender = new UDPSender(serverAddress, PORT, (Frame) f);
 			sender.start();
 		}
 	}
