@@ -21,7 +21,7 @@ public class UDPSender extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        log("New connection at " + socket + "\nEnter command> ");
+//        log("New connection at " + socket + "\nEnter command> ");
     }
 
     public void run() {
@@ -37,7 +37,7 @@ public class UDPSender extends Thread {
             } catch (IOException e) {
                 log("Couldn't close a socket, what's going on?\nEnter command> ");
             }
-            log("Connection with client closed\nEnter command> ");
+//            log("Connection with client closed\nEnter command> ");
         }
     }
 

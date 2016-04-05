@@ -119,11 +119,11 @@ public class CPE701 {
 				case CLOSE:
 					break;
 				case DOWNLOAD:
-					
+					int cid = Integer.parseInt(input.get(1));
+					String fname = input.get(2);
 					Data d = new Data();
-					d.setCommand("harry_potter.txt"); // set to user input 2
+					d.setCommand(fname);
 					app.send(d);
-
 					break;
 				case LINK_UP:
 					break;
