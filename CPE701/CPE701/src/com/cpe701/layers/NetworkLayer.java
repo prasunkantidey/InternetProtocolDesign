@@ -2,6 +2,7 @@ package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
+import com.cpe701.packets.Data;
 import com.cpe701.packets.IPDatagram;
 import com.cpe701.packets.Segment;
 
@@ -22,6 +23,7 @@ public class NetworkLayer implements Layer {
 		
 		
 		i.setPayload((Segment)packet);
+		
 		
 		
 		

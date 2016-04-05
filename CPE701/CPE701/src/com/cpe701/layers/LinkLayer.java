@@ -4,6 +4,7 @@ import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.Frame;
 import com.cpe701.packets.IPDatagram;
+import com.cpe701.packets.Segment;
 
 public class LinkLayer implements Layer{
 	
@@ -25,7 +26,7 @@ public class LinkLayer implements Layer{
 		
 		
 		
-		this.phy.send(packet);
+		this.phy.send(f);
 	}	
 
 	public void receive(Packet packet) {
