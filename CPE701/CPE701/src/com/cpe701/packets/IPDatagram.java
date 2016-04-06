@@ -133,15 +133,11 @@ public class IPDatagram extends Packet {
 	// }
 
 	public void setChecksum() {
-		try {
-			this.ip.setChecksum(calculateChecksum());
-		} catch (NoSuchAlgorithmException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.ip.setChecksum(calculateChecksum());
 	}
 
-	public String calculateChecksum() throws IOException, NoSuchAlgorithmException {
+	public String calculateChecksum() {
+		try {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(bos);
 
@@ -151,9 +147,19 @@ public class IPDatagram extends Packet {
 		bos.close();
 		byte[] b = bos.toByteArray();
 
-		MessageDigest md = MessageDigest.getInstance("MD5");
+		MessageDigest md=null;
+		try {
+			md = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		md.update(b, 0, b.length);
 		return new BigInteger(1, md.digest()).toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public Segment getPayload() {
@@ -167,7 +173,7 @@ public class IPDatagram extends Packet {
 	private class IPHeader implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		private int protocolVersion = 4;
+		private int protocolVersion = 1;
 		private int headerLength = 4;
 		private int totalLength = 0;
 		private int identification = 0; // Counter for each IPDatagram is sent

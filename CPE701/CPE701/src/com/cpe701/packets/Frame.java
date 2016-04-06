@@ -68,7 +68,7 @@ public class Frame extends Packet {
 		this.CRC = CRC;
 	}
 	
-	public void updateCRC() {
+	public String computeCRC(){
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream oos;
@@ -87,10 +87,15 @@ public class Frame extends Packet {
 				e.printStackTrace();
 			}
 			md.update(b, 0, b.length);
-			this.CRC = new BigInteger(1, md.digest()).toString();
+			return new BigInteger(1, md.digest()).toString();
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}
+	}
+	
+	private void updateCRC() {
+		this.CRC = computeCRC();
 	}
 
 	private class HeaderAndData implements Serializable {

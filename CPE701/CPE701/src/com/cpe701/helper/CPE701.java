@@ -9,17 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.swing.text.Segment;
-
 import com.cpe701.layers.AppLayer;
 import com.cpe701.layers.LinkLayer;
 import com.cpe701.layers.NetworkLayer;
 import com.cpe701.layers.PhysicalLayer;
 import com.cpe701.layers.TransportLayer;
 import com.cpe701.packets.Data;
-import com.cpe701.packets.Frame;
-import com.cpe701.packets.IPDatagram;
+
 
 public class CPE701 {
 
@@ -66,7 +62,7 @@ public class CPE701 {
 		 * Create layers
 		 */
 		PhysicalLayer phy = new PhysicalLayer();
-		LinkLayer link = new LinkLayer();
+		LinkLayer link = new LinkLayer(itcConfigList);
 		NetworkLayer net = new NetworkLayer();
 		TransportLayer transport = new TransportLayer();
 		AppLayer app = new AppLayer();
@@ -77,8 +73,11 @@ public class CPE701 {
 		transport.setApp(app);
 		net.setLink(link);
 		net.setTransport(transport);
+		
 		link.setPhy(phy);
+		link.setMAC_ID(localITCInfo.getNodeId());
 		link.setNet(net);
+		
 		phy.setLink(link);
 
 
@@ -126,8 +125,20 @@ public class CPE701 {
 					app.send(d);
 					break;
 				case LINK_UP:
+					if (input.size() !=2) {
+						System.out.println("Invalid input. Please check \"help\"");
+					}else{
+						link.enableLink(Integer.parseInt(input.get(1)));
+//						net.nbUp(nb); // WE NEED TO TELL NET LAYER A LINK IS UP, NETWORK LAYER WILL SEND HELLO THEN?
+					}
 					break;
 				case LINK_DOWN:
+					if (input.size() !=2) {
+						System.out.println("Invalid input. Please check \"help\"");
+					}else{
+						link.disableLink(Integer.parseInt(input.get(1)));
+//						net.nbDown(nb); // WE NEED TO CLEAN UP THE ROUTING TABLE WHEN WE SET A LINK DOWN
+					}
 					break;
 				case ROUTE_TABLE:
 					break;
@@ -147,24 +158,11 @@ public class CPE701 {
 					}
 					break;
 				case DEBUG:
-//					Frame f = new Frame();
-//					f.setDst(10);
-//					f.setLen(11);
-//					f.setSrc(12);
-//					
-//					System.out.println("aa: "+f.getCRC());
-//					
-//					phy.send(f);
-
-					IPDatagram i = new IPDatagram();
-					i.setSourceIP(10);
-					i.setDestinationIP(11);
-
-//					net.send(i);
-					Frame f = new Frame();
-					f.setPayload(i);
-					phy.send(f);
-					
+					app.debug();
+					transport.debug();
+					net.debug();
+					link.debug();
+					phy.debug();					
 					break;
 				case EXIT:
 					System.out.println("Exiting...\n");

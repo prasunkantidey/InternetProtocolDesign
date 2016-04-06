@@ -12,7 +12,7 @@ public class TransportLayer implements Layer{
 	
 	
 	public void debug() {
-		System.out.println("Debug from TRANSPORT");
+		System.out.println("L4: Debug");
 	}
 	
 	public void send(Packet packet) {
@@ -27,7 +27,7 @@ public class TransportLayer implements Layer{
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("TRA: Packet received");
+		System.out.println("L4: Received");
 		
 		
 		Segment s = (Segment) packet;

@@ -2,7 +2,7 @@ package com.cpe701.layers;
 
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
-import com.cpe701.packets.Data;
+import com.cpe701.packets.Frame;
 import com.cpe701.packets.IPDatagram;
 import com.cpe701.packets.Segment;
 
@@ -10,11 +10,12 @@ public class NetworkLayer implements Layer {
 	
 	private LinkLayer link;
 	private TransportLayer transport;
+	private int IP_ID;
 	
 	
 	
 	public void debug() {
-		System.out.println("Debug from NETWORK");
+		System.out.println("L3: Debug");
 	}
 
 	public void send(Packet packet) {
@@ -32,16 +33,28 @@ public class NetworkLayer implements Layer {
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("NET: Packet received");
-		
-		
+		System.out.println("L3: Received");
 		
 		IPDatagram i = (IPDatagram) packet;
+		Segment s = i.getPayload();
 		
+		String recCRC = i.getChecksum();
+		String calcCRC = i.calculateChecksum();
 		
+		if (recCRC == calcCRC){
+			if (i.getDestinationIP() == this.IP_ID){
+				
+				
+				// Surround this line if implementing fragmentation
+				this.transport.receive(s);
+				
+				
+				
+			}else{
+				// FORWARD
+			}
+		}
 		
-		
-		this.transport.receive(i.getPayload());
 	}
 
 	/**
@@ -72,5 +85,12 @@ public class NetworkLayer implements Layer {
 		this.transport = transport;
 	}
 	
+	public int getIP_ID() {
+		return IP_ID;
+	}
+
+	public void setIP_ID(int iP_ID) {
+		IP_ID = iP_ID;
+	}
 
 }
