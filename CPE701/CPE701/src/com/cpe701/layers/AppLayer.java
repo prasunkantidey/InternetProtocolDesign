@@ -21,10 +21,8 @@ public class AppLayer implements Layer {
 	}
 	
 	public void send(Packet packet) {
+		System.out.println("L5: Sent");
 		Data d = (Data) packet;
-
-		this.fileName = "local_receive.txt";
-
 		File f = new File(this.fileName); 
 		try {
 			f.createNewFile();
@@ -54,7 +52,7 @@ public class AppLayer implements Layer {
 			File f = new File(this.fileName);
 			FileOutputStream output=null;
 			try {
-				output = new FileOutputStream(f);
+				output = new FileOutputStream(f,true);
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

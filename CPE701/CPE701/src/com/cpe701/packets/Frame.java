@@ -69,6 +69,7 @@ public class Frame extends Packet {
 	}
 	
 	public String computeCRC(){
+		this.setCRC("");
 		try {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream oos;
@@ -127,11 +128,9 @@ public class Frame extends Packet {
 			this.len = len;
 		}
 		public IPDatagram getIpd() {
-			System.out.println("header get: ");
 			return ipd;
 		}
 		public void setIpd(IPDatagram ipd) {
-			System.out.println("header set: "+ipd.getPayload().getPayload().getCommand());
 			this.ipd = ipd;
 		}
 	}

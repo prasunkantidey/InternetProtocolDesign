@@ -62,7 +62,7 @@ public class CPE701 {
 		 * Create layers
 		 */
 		PhysicalLayer phy = new PhysicalLayer();
-		LinkLayer link = new LinkLayer(itcConfigList);
+		LinkLayer link = new LinkLayer(itcConfigList, nID);
 		NetworkLayer net = new NetworkLayer();
 		TransportLayer transport = new TransportLayer();
 		AppLayer app = new AppLayer();
@@ -122,6 +122,9 @@ public class CPE701 {
 					String fname = input.get(2);
 					Data d = new Data();
 					d.setCommand(fname);
+					
+					app.setFileName("tmp_" + fname);
+					
 					app.send(d);
 					break;
 				case LINK_UP:

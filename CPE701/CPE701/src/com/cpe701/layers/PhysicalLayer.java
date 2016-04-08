@@ -19,6 +19,7 @@ public class PhysicalLayer implements Layer {
 	}
 
 	public void send(Packet packet) {
+		System.out.println("L1: Sent");
 		Garbler g = new Garbler(this.garblerLoss, this.garblerCorrupt);
 
 		if (!g.drop()) {

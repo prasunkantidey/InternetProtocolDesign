@@ -16,6 +16,7 @@ public class TransportLayer implements Layer{
 	}
 	
 	public void send(Packet packet) {
+		System.out.println("L4: Sent");
 		Segment s = new Segment();
 		
 		

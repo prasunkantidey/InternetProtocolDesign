@@ -1,6 +1,8 @@
 package com.cpe701.layers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +19,8 @@ public class LinkLayer implements Layer{
 	private int MAC_ID;
 	private Map<Integer,Link> linkList = new HashMap<>();
 	
-	public LinkLayer (List<ITCConfiguration> itcList) {
+	public LinkLayer (List<ITCConfiguration> itcList, int nodeId) {
+		this.MAC_ID = nodeId;
 		for (ITCConfiguration itc : itcList) {
 			if (itc.getFirstConnectedNode() == this.MAC_ID || itc.getSecondConnectedNode() == this.MAC_ID){
 				Link l = new Link();
@@ -25,6 +28,12 @@ public class LinkLayer implements Layer{
 				linkList.put(itc.getNodeId(),l);
 			}
 		}
+//		Iterator it = linkList.entrySet().iterator();
+//		while(it.hasNext()){
+//			Map.Entry pair = (Map.Entry)it.next();
+//			System.out.println((Integer)pair.getKey());
+//			it.remove();
+//		}
 	}
 	
 	
@@ -32,13 +41,45 @@ public class LinkLayer implements Layer{
 		System.out.println("L2: Debug");
 	}
 
+	public synchronized ArrayList<Integer> getUplinks(){
+		ArrayList<Integer> neighbors = new ArrayList<>();
+		Iterator it = linkList.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry)it.next();
+			Link l = (Link)pair.getValue();
+			if(l.isEnabled()){
+				neighbors.add((Integer)pair.getKey());
+			}
+			it.remove();
+		}
+		
+		for (Integer i : neighbors) {
+			System.out.println("Neighbor: " + i);
+		}
+		
+		return neighbors;
+	}
+	
 	public void send(Packet packet) {//READ COMMENT BELOW, NEED TO RECEIVE ANOTHER PARAMETER
+		System.out.println("L2: Sent");
 		Frame f = new Frame();
 		
 		IPDatagram i = (IPDatagram) packet;
 		f.setPayload(i);
 
-		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
+		Iterator it = linkList.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry)it.next();
+			System.out.println((Integer)pair.getKey());
+			it.remove();
+		}
+
+		
+		int nb = 1; //i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
+		
+		System.out.println(linkList.containsKey(nb));
+		
+//		Link l = linkList.get(nb);
 		
 		if(linkList.containsKey(nb)) {
 			if (this.linkList.get(nb).isEnabled()){
@@ -61,8 +102,9 @@ public class LinkLayer implements Layer{
 		
 		String recCRC = f.getCRC();
 		String calcCRC = f.computeCRC();
+		f.setCRC(recCRC);
 		
-		if (recCRC == calcCRC){
+		if (recCRC.equals(calcCRC)){
 			if (f.getDst() == this.MAC_ID){
 				this.net.receive(i);
 			} 

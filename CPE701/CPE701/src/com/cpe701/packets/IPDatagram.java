@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 import com.cpe701.helper.Packet;
 
@@ -17,7 +18,8 @@ public class IPDatagram extends Packet {
 	private static final long serialVersionUID = -2814411564423081141L;
 
 	private IPHeader ip = new IPHeader();
-	
+	private ArrayList<Integer> upLinks = new ArrayList<>();
+
 	public String test = "From IPDATAGRAM";
 
 	private Segment payload;
@@ -32,6 +34,24 @@ public class IPDatagram extends Packet {
 		this.ip.sourceIP = sourceIP;
 		this.ip.destinationIP = destinationIP;
 		this.setPayload(payload);
+	}
+
+
+
+	//	public boolean isHello(){
+	//		return this.ip.isHello();
+	//	}
+	//	
+	//	public void setHello(boolean isHello){
+	//		this.ip.setHello(isHello);
+	//	}
+
+	public synchronized ArrayList<Integer> getUpLinks() {
+		return upLinks;
+	}
+
+	public synchronized void setUpLinks(ArrayList<Integer> upLinks) {
+		this.upLinks = upLinks;
 	}
 
 	public int getProtocolVersion() {
@@ -128,34 +148,35 @@ public class IPDatagram extends Packet {
 		return this.ip.getChecksum();
 	}
 
-	// public void setChecksum(String checksum) {
-	// this.ip.setChecksum(checksum);
-	// }
+	public void setChecksum(String checksum) {
+		this.ip.setChecksum(checksum);
+	}
 
 	public void setChecksum() {
 		this.ip.setChecksum(calculateChecksum());
 	}
 
 	public String calculateChecksum() {
+		this.setChecksum("");
 		try {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(bos);
 
-		oos.writeObject(this.ip);
-		oos.flush();
-		oos.close();
-		bos.close();
-		byte[] b = bos.toByteArray();
+			oos.writeObject(this.ip);
+			oos.flush();
+			oos.close();
+			bos.close();
+			byte[] b = bos.toByteArray();
 
-		MessageDigest md=null;
-		try {
-			md = MessageDigest.getInstance("MD5");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		md.update(b, 0, b.length);
-		return new BigInteger(1, md.digest()).toString();
+			MessageDigest md=null;
+			try {
+				md = MessageDigest.getInstance("MD5");
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			md.update(b, 0, b.length);
+			return new BigInteger(1, md.digest()).toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
@@ -173,11 +194,15 @@ public class IPDatagram extends Packet {
 	private class IPHeader implements Serializable {
 		private static final long serialVersionUID = 1L;
 
-		private int protocolVersion = 1;
+		//		private boolean isHello = false;
+		private int protocolVersion = 0;
+
+		private ArrayList<Integer> neighborlist = new ArrayList<>();
+
 		private int headerLength = 4;
 		private int totalLength = 0;
 		private int identification = 0; // Counter for each IPDatagram is sent
-										// from the
+		// from the
 		// IP layer.
 		private boolean dontFragment = false;
 		private boolean moreFragment = false;
@@ -192,6 +217,14 @@ public class IPDatagram extends Packet {
 		public IPHeader() {
 
 		}
+
+		//		public boolean isHello() {
+		//			return isHello;
+		//		}
+		//
+		//		public void setHello(boolean isHello) {
+		//			this.isHello = isHello;
+		//		}
 
 		public int getProtocolVersion() {
 			return protocolVersion;
@@ -279,6 +312,14 @@ public class IPDatagram extends Packet {
 
 		public void setChecksum(String checksum) {
 			this.checksum = checksum;
+		}
+
+		public ArrayList<Integer> getNeighborlist() {
+			return neighborlist;
+		}
+
+		public void setNeighborlist(ArrayList<Integer> neighborlist) {
+			this.neighborlist = neighborlist;
 		}
 	}
 }
