@@ -53,6 +53,8 @@ public class NetworkLayer implements Layer {
 				} else {
 					// FORWARD
 				}
+			}else{
+				System.out.println("netsarkj tv huj hkjr");
 			}
 		} else { //receive hello packet
 			for (Integer upLinks : i.getUpLinks()) {

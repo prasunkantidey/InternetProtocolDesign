@@ -67,17 +67,27 @@ public class LinkLayer implements Layer{
 		IPDatagram i = (IPDatagram) packet;
 		f.setPayload(i);
 
-		Iterator it = linkList.entrySet().iterator();
-		while(it.hasNext()){
-			Map.Entry pair = (Map.Entry)it.next();
-			System.out.println((Integer)pair.getKey());
-			it.remove();
-		}
+		
+		
+		
+		
+		
+		
+		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
+		
+//		Iterator it = linkList.entrySet().iterator();
+//		while(it.hasNext()){
+//			Map.Entry pair = (Map.Entry)it.next();
+//			System.out.println((Integer)pair.getKey());
+//			if ((Integer)pair.getKey()==nb){
+//				System.out.println("aloha");
+//			}
+//		}
+
 
 		
-		int nb = 1; //i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
-		
-		System.out.println(linkList.containsKey(nb));
+//		System.out.println("Here: " + linkList.get(1).isEnabled);
+//		System.out.println(linkList.containsKey(nb));
 		
 //		Link l = linkList.get(nb);
 		
