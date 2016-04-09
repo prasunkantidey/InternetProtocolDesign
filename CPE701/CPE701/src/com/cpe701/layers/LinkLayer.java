@@ -32,7 +32,6 @@ public class LinkLayer implements Layer{
 //		while(it.hasNext()){
 //			Map.Entry pair = (Map.Entry)it.next();
 //			System.out.println((Integer)pair.getKey());
-//			it.remove();
 //		}
 	}
 	
@@ -50,7 +49,6 @@ public class LinkLayer implements Layer{
 			if(l.isEnabled()){
 				neighbors.add((Integer)pair.getKey());
 			}
-			it.remove();
 		}
 		
 		for (Integer i : neighbors) {
@@ -87,7 +85,7 @@ public class LinkLayer implements Layer{
 
 		
 //		System.out.println("Here: " + linkList.get(1).isEnabled);
-//		System.out.println(linkList.containsKey(nb));
+		System.out.println(nb);
 		
 //		Link l = linkList.get(nb);
 		
