@@ -1,5 +1,6 @@
 package com.cpe701.layers;
 
+import com.cpe701.helper.CPE701;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.Data;
@@ -12,11 +13,11 @@ public class TransportLayer implements Layer{
 	
 	
 	public void debug() {
-		System.out.println("L4: Debug");
+		if (CPE701.DEBUG) System.out.println("L4: Debug");
 	}
 	
 	public void send(Packet packet) {
-		System.out.println("L4: Sent");
+		if (CPE701.DEBUG) System.out.println("L4: Sent");
 		Segment s = new Segment();
 		
 		
@@ -28,7 +29,7 @@ public class TransportLayer implements Layer{
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("L4: Received");
+		if (CPE701.DEBUG) System.out.println("L4: Received");
 		
 		
 		Segment s = (Segment) packet;

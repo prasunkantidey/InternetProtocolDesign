@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import com.cpe701.helper.CPE701;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.Data;
@@ -17,11 +19,11 @@ public class AppLayer implements Layer {
 	private String fileName;
 	
 	public void debug() {
-		System.out.println("L5: Debug");
+		if (CPE701.DEBUG) System.out.println("L5: Debug");
 	}
 	
 	public void send(Packet packet) {
-		System.out.println("L5: Sent");
+		if (CPE701.DEBUG) System.out.println("L5: Sent");
 		Data d = (Data) packet;
 		File f = new File(this.fileName); 
 		try {
@@ -34,7 +36,7 @@ public class AppLayer implements Layer {
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("L5: Received");
+		if (CPE701.DEBUG) System.out.println("L5: Received");
 		
 		Data d = (Data) packet;
 		

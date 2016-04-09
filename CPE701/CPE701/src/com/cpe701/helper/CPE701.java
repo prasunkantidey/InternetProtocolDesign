@@ -18,7 +18,7 @@ import com.cpe701.packets.Data;
 
 
 public class CPE701 {
-
+public static boolean DEBUG = false;
 	public enum UserCommand {
 		HELP, START_SERVICE, STOP_SERVICE, CONNECT, CLOSE, DOWNLOAD, SET_GARBLER, ROUTE_TABLE, LINK_UP, LINK_DOWN, DEBUG, EXIT;
 	};

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.cpe701.helper.CPE701;
 import com.cpe701.helper.ITCConfiguration;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
@@ -37,7 +38,7 @@ public class LinkLayer implements Layer{
 	
 	
 	public void debug() {
-		System.out.println("L2: Debug");
+		if (CPE701.DEBUG) System.out.println("L2: Debug");
 	}
 
 	public synchronized ArrayList<Integer> getUplinks(){
@@ -59,7 +60,7 @@ public class LinkLayer implements Layer{
 	}
 	
 	public void send(Packet packet) {//READ COMMENT BELOW, NEED TO RECEIVE ANOTHER PARAMETER
-		System.out.println("L2: Sent");
+		if (CPE701.DEBUG) System.out.println("L2: Sent");
 		Frame f = new Frame();
 		
 		IPDatagram i = (IPDatagram) packet;
@@ -103,7 +104,7 @@ public class LinkLayer implements Layer{
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("L2: Received");
+		if (CPE701.DEBUG) System.out.println("L2: Received");
 		
 		Frame f = (Frame) packet;
 		IPDatagram i = f.getPayload();

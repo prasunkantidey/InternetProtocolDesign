@@ -3,6 +3,7 @@ package com.cpe701.layers;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.cpe701.helper.CPE701;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.layers.LinkLayer.Link;
@@ -16,13 +17,7 @@ public class NetworkLayer implements Layer {
 	private int IP_ID;
 
 	public void debug() {
-		System.out.println("L3: Debug");
-		// new SendHello(getIP_ID(), link).start();
-
-		//
-		// Timer timer = new Timer();
-		// timer.schedule(new SendHelloTask(), 0, 6000);
-
+		if (CPE701.DEBUG) System.out.println("L3: Debug");
 	}
 
 	public NetworkLayer() {
@@ -33,7 +28,7 @@ public class NetworkLayer implements Layer {
 	}
 
 	public void send(Packet packet) {
-		System.out.println("L3: Sent");
+		if (CPE701.DEBUG) System.out.println("L3: Sent");
 		IPDatagram i = new IPDatagram();
 
 		i.setPayload((Segment) packet);
@@ -42,7 +37,7 @@ public class NetworkLayer implements Layer {
 	}
 
 	public void receive(Packet packet) {
-		System.out.println("L3: Received");
+		if (CPE701.DEBUG) System.out.println("L3: Received");
 
 		IPDatagram i = (IPDatagram) packet;
 		if (i.getProtocolVersion() == 0) {
@@ -63,7 +58,7 @@ public class NetworkLayer implements Layer {
 					// FORWARD
 				}
 			} else {
-				System.out.println("netsarkj tv huj hkjr");
+				System.out.println("CRC did not match!");
 			}
 		} else { // receive hello packet
 			for (Integer upLinks : i.getUpLinks()) {
@@ -133,54 +128,6 @@ public class NetworkLayer implements Layer {
 					System.out.println("Links: " + i);
 					hello.setDestinationIP(i);
 					link.send(hello);
-				}
-			}
-		}
-	}
-
-	private class SendHello extends Thread {
-		private int sourceIp;
-		private LinkLayer shLink;
-
-		public SendHello(int sourceIp, LinkLayer shLink) {
-			// TODO Auto-generated constructor stub
-			this.sourceIp = sourceIp;
-			this.shLink = shLink;
-		}
-
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			while (true) {
-				// Hello hello = new Hello();
-				// hello.setSourceIP(getIP_ID());
-				// hello.setDestIP(0);
-				// hello.setOriginatorIP(getIP_ID());
-				// send(hello);
-				System.out.println("Here!: size: " + shLink.getUplinks().size());
-
-				IPDatagram hello = new IPDatagram();
-				hello.setProtocolVersion(1);
-				// hello.setSourceIP(getIP_ID());
-				// hello.setUpLinks(link.getUplinks());
-				hello.setSourceIP(sourceIp);
-				hello.setUpLinks(shLink.getUplinks());
-
-				hello.setPayload(null);
-
-				for (Integer i : shLink.getUplinks()) {
-					System.out.println("Links: " + i);
-					hello.setDestinationIP(i);
-					link.send(hello);
-				}
-
-				// for each neighbor, send list of neighbors
-
-				try {
-					Thread.sleep(2000);
-				} catch (Exception e) {
-					// TODO: handle exception
-					break;
 				}
 			}
 		}
