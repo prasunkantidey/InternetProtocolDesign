@@ -1,39 +1,55 @@
 package com.cpe701.layers;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import com.cpe701.helper.CPE701;
+import com.cpe701.helper.ITCConfiguration;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
-import com.cpe701.layers.LinkLayer.Link;
 import com.cpe701.packets.IPDatagram;
 import com.cpe701.packets.Segment;
 
-public class NetworkLayer implements Layer {
+public class NetworkLayer {
 
 	private LinkLayer link;
 	private TransportLayer transport;
 	private int IP_ID;
+	private Map<Integer, RoutingTableEntry> routingTable = new HashMap<>();
 
 	public void debug() {
 		if (CPE701.DEBUG) System.out.println("L3: Debug");
 	}
 
-	public NetworkLayer() {
+	public NetworkLayer(List<ITCConfiguration> itcList, int nodeId) {
 		super();
-
+		//Setup initial 1-hop routing table
+		this.IP_ID = nodeId;
+		for (ITCConfiguration itc : itcList) {
+			if (itc.getNodeId() == this.IP_ID){
+				routingTable.put(itc.getFirstConnectedNode(), new RoutingTableEntry(itc.getFirstConnectedNode(), 1));
+				routingTable.put(itc.getSecondConnectedNode(), new RoutingTableEntry(itc.getSecondConnectedNode(), 1));
+			}
+		}
+		
 		Timer timer = new Timer();
 		timer.schedule(new SendHelloTask(), 0, 6000);
 	}
 
-	public void send(Packet packet) {
+	public void send(Packet packet, int destination) {
 		if (CPE701.DEBUG) System.out.println("L3: Sent");
 		IPDatagram i = new IPDatagram();
-
+		i.setDestinationIP(destination);
+		i.setSourceIP(this.IP_ID);
+		
 		i.setPayload((Segment) packet);
 
-		this.link.send(i);
+		this.link.send(i,lookUpNextHop(destination));
 	}
 
 	public void receive(Packet packet) {
@@ -56,20 +72,34 @@ public class NetworkLayer implements Layer {
 
 				} else {
 					// FORWARD
+					this.link.send(i,lookUpNextHop(i.getDestinationIP()));
 				}
 			} else {
 				System.out.println("CRC did not match!");
 			}
-		} else { // receive hello packet
-			for (Integer upLinks : i.getUpLinks()) {
-				System.out.println(upLinks);
+		} else {
+			
+			// Update entry for hello source if needed
+			if (routingTable.containsKey(i.getSourceIP())) {
+				if (routingTable.get(i.getSourceIP()).getHopCount() > 1){
+					routingTable.get(i.getSourceIP()).setHopCount(1);
+					routingTable.get(i.getSourceIP()).setNextHop(i.getSourceIP());
+				}
 			}
-			// Hello hello = (Hello) packet;
-			// receiveHello(i);
-			// System.out.println(hello.getOriginatorIP());
+			// Update for source's neighbors
+			purgeTableByLinkDown(i.getSourceIP());
+			for (Integer upLinks : i.getUpLinks()) {
+				if (!routingTable.containsKey(upLinks)) {
+					routingTable.put(upLinks, new RoutingTableEntry(i.getSourceIP(), 2));
+				}else{
+					if (routingTable.get(upLinks).getHopCount() >= 2 && routingTable.get(upLinks).getNextHop() < i.getSourceIP()){
+						routingTable.get(upLinks).setNextHop(i.getSourceIP());
+					}
+				}
+			}
 		}
 	}
-
+	
 	/**
 	 * @return the link
 	 */
@@ -107,30 +137,74 @@ public class NetworkLayer implements Layer {
 	public void setIP_ID(int iP_ID) {
 		IP_ID = iP_ID;
 	}
-
+	
+	private int lookUpNextHop(int destination){
+		if (!routingTable.containsKey(destination)) return -1;
+		return routingTable.get(destination).getNextHop();
+	}
+	public void purgeTableByLinkDown(int nh){
+		Iterator<Entry<Integer, RoutingTableEntry>> it = routingTable.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry)it.next();
+			RoutingTableEntry rt = (RoutingTableEntry)pair.getValue();
+			if (rt.getNextHop() == nh) it.remove();
+		}
+	}
+	
+	
+	public void printRT(){
+		System.out.println("Routing Table\n");
+		System.out.println("Destination\tNext hop\tHop count");
+		Iterator<Entry<Integer, RoutingTableEntry>> it = routingTable.entrySet().iterator();
+		while(it.hasNext()){
+			Map.Entry pair = (Map.Entry)it.next();
+			RoutingTableEntry rt = (RoutingTableEntry)pair.getValue();
+			int dst = (int)pair.getKey();
+			System.out.println(dst + "\t\t" + rt.getNextHop() + "\t\t" + rt.getHopCount() +"");
+		}
+	}
+	
+	
+	
 	class SendHelloTask extends TimerTask {
 		@Override
 		public void run() {
 
 			if (link != null) {
-				System.out.println("Here!: size: " + link.getUplinks().size());
-
 				IPDatagram hello = new IPDatagram();
 				hello.setProtocolVersion(1);
 				hello.setSourceIP(getIP_ID());
 				hello.setUpLinks(link.getUplinks());
-				// hello.setSourceIP(sourceIp);
-				// hello.setUpLinks(link.getUplinks());
-
-				hello.setPayload(null);
+				hello.setPayload(new Segment());
 
 				for (Integer i : link.getUplinks()) {
-					System.out.println("Links: " + i);
+//					System.out.println("Links: " + i);
 					hello.setDestinationIP(i);
-					link.send(hello);
+					link.send(hello,lookUpNextHop(i));
 				}
 			}
 		}
 	}
-
+	
+	class RoutingTableEntry {
+		private int nextHop;
+		private int hopCount;
+		public RoutingTableEntry(int nh, int hc){
+			this.setNextHop(nh);
+			this.setHopCount(hc);
+		}
+		public int getNextHop() {
+			return nextHop;
+		}
+		public void setNextHop(int nextHop) {
+			this.nextHop = nextHop;
+		}
+		public int getHopCount() {
+			return hopCount;
+		}
+		public void setHopCount(int hopCount) {
+			this.hopCount = hopCount;
+		}
+	}
+	
 }

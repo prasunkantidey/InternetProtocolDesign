@@ -18,7 +18,7 @@ import com.cpe701.packets.Data;
 
 
 public class CPE701 {
-public static boolean DEBUG = false;
+	public static boolean DEBUG = false;
 	public enum UserCommand {
 		HELP, START_SERVICE, STOP_SERVICE, CONNECT, CLOSE, DOWNLOAD, SET_GARBLER, ROUTE_TABLE, LINK_UP, LINK_DOWN, DEBUG, EXIT;
 	};
@@ -61,23 +61,23 @@ public static boolean DEBUG = false;
 		/*
 		 * Create layers
 		 */
-		PhysicalLayer phy = new PhysicalLayer();
+		PhysicalLayer phy = new PhysicalLayer(itcConfigList, nID);
 		LinkLayer link = new LinkLayer(itcConfigList, nID);
-		NetworkLayer net = new NetworkLayer();
+		NetworkLayer net = new NetworkLayer(itcConfigList, nID);
 		TransportLayer transport = new TransportLayer();
-		AppLayer app = new AppLayer();
+		//		AppLayer app = new AppLayer();
 
 		//  Assign pointers to adjacent layers so they can talk to each other
-		app.setTransport(transport);
+		//		app.setTransport(transport);
 		transport.setNet(net);
-		transport.setApp(app);
+		//		transport.setApp(app);
 		net.setLink(link);
 		net.setTransport(transport);
-		
+
 		link.setPhy(phy);
 		link.setMAC_ID(localITCInfo.getNodeId());
 		link.setNet(net);
-		
+
 		phy.setLink(link);
 
 
@@ -100,7 +100,6 @@ public static boolean DEBUG = false;
 
 		while (true) {
 
-
 			String inputTemp = menu.getUserInput();
 			List<String> input = new ArrayList<String>(Arrays.asList(inputTemp.split(" ")));
 
@@ -110,10 +109,31 @@ public static boolean DEBUG = false;
 					menu.printHelp();
 					break;
 				case START_SERVICE:
+					if (input.size() !=2) {
+						System.out.println("Invalid input. Please check \"help\"");
+					}else{
+						AppLayer app = new AppLayer();					
+						if (transport.listenPort(Integer.parseInt(input.get(1)),app)){
+							System.out.println("SUCCESS: sid="+Integer.parseInt(input.get(1))+"\n");
+						}else{
+							System.out.println("FAILURE: sid="+Integer.parseInt(input.get(1))+" in use");
+						}
+					}
 					break;
 				case STOP_SERVICE:
+					if (input.size() !=2) {
+						System.out.println("Invalid input. Please check \"help\"");
+					}else{
+						if (transport.stopListenPort(Integer.parseInt(input.get(1)))){
+							System.out.println("SUCCESS: sid="+Integer.parseInt(input.get(1))+" terminated\n");
+						}else{
+							System.out.println("FAILURE: sid="+Integer.parseInt(input.get(1))+" not in use");
+						}
+					}
+					//remove dict with key = sid
 					break;
 				case CONNECT:
+					// create a dict with sid/node_ip
 					break;
 				case CLOSE:
 					break;
@@ -122,17 +142,17 @@ public static boolean DEBUG = false;
 					String fname = input.get(2);
 					Data d = new Data();
 					d.setCommand(fname);
-					
-					app.setFileName("tmp_" + fname);
-					
-					app.send(d);
+
+//					app.setFileName("tmp_" + fname);
+
+//					app.send(d);
 					break;
 				case LINK_UP:
 					if (input.size() !=2) {
 						System.out.println("Invalid input. Please check \"help\"");
 					}else{
 						link.enableLink(Integer.parseInt(input.get(1)));
-//						net.nbUp(nb); // WE NEED TO TELL NET LAYER A LINK IS UP, NETWORK LAYER WILL SEND HELLO THEN?
+						// in 10 secs the network will converge because of hello timer
 					}
 					break;
 				case LINK_DOWN:
@@ -140,10 +160,11 @@ public static boolean DEBUG = false;
 						System.out.println("Invalid input. Please check \"help\"");
 					}else{
 						link.disableLink(Integer.parseInt(input.get(1)));
-//						net.nbDown(nb); // WE NEED TO CLEAN UP THE ROUTING TABLE WHEN WE SET A LINK DOWN
+						net.purgeTableByLinkDown(Integer.parseInt(input.get(1)));
 					}
 					break;
 				case ROUTE_TABLE:
+					net.printRT();
 					break;
 				case SET_GARBLER:
 					if (input.size() !=3) {
@@ -161,7 +182,6 @@ public static boolean DEBUG = false;
 					}
 					break;
 				case DEBUG:
-					app.debug();
 					transport.debug();
 					net.debug();
 					link.debug();
@@ -213,7 +233,7 @@ class PrintMenu {
 	}
 
 	String getUserInput() {
-		System.out.print("Enter command> ");
+		System.out.print(">>> ");
 		String input = "";
 		try {
 			input = br.readLine();

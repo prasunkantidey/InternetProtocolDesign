@@ -13,7 +13,7 @@ import com.cpe701.helper.Packet;
 import com.cpe701.packets.Frame;
 import com.cpe701.packets.IPDatagram;
 
-public class LinkLayer implements Layer{
+public class LinkLayer {
 	
 	private PhysicalLayer phy;
 	private NetworkLayer net;
@@ -59,7 +59,7 @@ public class LinkLayer implements Layer{
 		return neighbors;
 	}
 	
-	public void send(Packet packet) {//READ COMMENT BELOW, NEED TO RECEIVE ANOTHER PARAMETER
+	public void send(Packet packet, int nextHopId) {
 		if (CPE701.DEBUG) System.out.println("L2: Sent");
 		Frame f = new Frame();
 		
@@ -72,7 +72,7 @@ public class LinkLayer implements Layer{
 		
 		
 		
-		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
+//		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
 		
 //		Iterator it = linkList.entrySet().iterator();
 //		while(it.hasNext()){
@@ -86,17 +86,17 @@ public class LinkLayer implements Layer{
 
 		
 //		System.out.println("Here: " + linkList.get(1).isEnabled);
-		System.out.println(nb);
+//		System.out.println(nb);
 		
 //		Link l = linkList.get(nb);
 		
-		if(linkList.containsKey(nb)) {
-			if (this.linkList.get(nb).isEnabled()){
-				f.setDst(nb);
+		if(linkList.containsKey(nextHopId)) {
+			if (this.linkList.get(nextHopId).isEnabled()){
+				f.setDst(nextHopId);
 				f.setSrc(this.MAC_ID);
 				this.phy.send(f);
 			}else {
-				System.out.println("L2: Link to neighbor "+nb+" is down");
+				System.out.println("L2: Link to neighbor "+nextHopId+" is down");
 			}
 		}else{
 			System.out.println("L2: Address could not be solved");

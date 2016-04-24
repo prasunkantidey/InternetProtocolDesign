@@ -14,6 +14,7 @@ public class UDPSender extends Thread {
     
     public UDPSender(String serverAddress, int PORT, Frame f) {
         try {
+        	System.out.println(serverAddress + ":" + PORT);
 			this.socket = new Socket(serverAddress, PORT);
 			this.frame = f;
 		} catch (UnknownHostException e) {

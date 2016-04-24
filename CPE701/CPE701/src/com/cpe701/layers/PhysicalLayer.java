@@ -1,18 +1,32 @@
 package com.cpe701.layers;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.cpe701.helper.CPE701;
 import com.cpe701.helper.Garbler;
+import com.cpe701.helper.ITCConfiguration;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.helper.UDPSender;
+import com.cpe701.layers.NetworkLayer.RoutingTableEntry;
 import com.cpe701.packets.Frame;
 
 public class PhysicalLayer implements Layer {
 
+	
 	private LinkLayer link;
 	private int garblerLoss = 0;
 	private int garblerCorrupt = 0;
-
+	private Map<Integer, ITCConfiguration> itcList = new HashMap<>();
+	
+	public PhysicalLayer (List<ITCConfiguration> itcList, int nodeId) {
+		for (ITCConfiguration itc : itcList) {
+			this.itcList.put(itc.getNodeId(), itc);
+		}
+	}
+	
 	public void debug() {
 		if (CPE701.DEBUG) System.out.println("L1: Debug");
 		// Garbler g = new Garbler(0, 99);
@@ -25,9 +39,9 @@ public class PhysicalLayer implements Layer {
 
 		if (!g.drop()) {
 			Packet f = g.garble(packet);
-
-			String serverAddress = "localhost";
-			int PORT = 17878;
+			
+			String serverAddress = itcList.get(((Frame)f).getDst()).getNodeHostName();
+			int PORT = itcList.get(((Frame)f).getDst()).getUdpPort();
 
 			UDPSender sender = new UDPSender(serverAddress, PORT, (Frame) f);
 			sender.start();
