@@ -14,12 +14,12 @@ import com.cpe701.packets.Frame;
 import com.cpe701.packets.IPDatagram;
 
 public class LinkLayer {
-	
+
 	private PhysicalLayer phy;
 	private NetworkLayer net;
 	private int MAC_ID;
 	private Map<Integer,Link> linkList = new HashMap<>();
-	
+
 	public LinkLayer (List<ITCConfiguration> itcList, int nodeId) {
 		this.MAC_ID = nodeId;
 		for (ITCConfiguration itc : itcList) {
@@ -29,14 +29,9 @@ public class LinkLayer {
 				linkList.put(itc.getNodeId(),l);
 			}
 		}
-//		Iterator it = linkList.entrySet().iterator();
-//		while(it.hasNext()){
-//			Map.Entry pair = (Map.Entry)it.next();
-//			System.out.println((Integer)pair.getKey());
-//		}
 	}
-	
-	
+
+
 	public void debug() {
 		if (CPE701.DEBUG) System.out.println("L2: Debug");
 	}
@@ -51,45 +46,41 @@ public class LinkLayer {
 				neighbors.add((Integer)pair.getKey());
 			}
 		}
-		
-		for (Integer i : neighbors) {
-			System.out.println("Neighbor: " + i);
-		}
-		
+
 		return neighbors;
 	}
-	
+
 	public void send(Packet packet, int nextHopId) {
 		if (CPE701.DEBUG) System.out.println("L2: Sent");
 		Frame f = new Frame();
-		
+
 		IPDatagram i = (IPDatagram) packet;
 		f.setPayload(i);
 
-		
-		
-		
-		
-		
-		
-//		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
-		
-//		Iterator it = linkList.entrySet().iterator();
-//		while(it.hasNext()){
-//			Map.Entry pair = (Map.Entry)it.next();
-//			System.out.println((Integer)pair.getKey());
-//			if ((Integer)pair.getKey()==nb){
-//				System.out.println("aloha");
-//			}
-//		}
 
 
-		
-//		System.out.println("Here: " + linkList.get(1).isEnabled);
-//		System.out.println(nb);
-		
-//		Link l = linkList.get(nb);
-		
+
+
+
+
+		//		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
+
+		//		Iterator it = linkList.entrySet().iterator();
+		//		while(it.hasNext()){
+		//			Map.Entry pair = (Map.Entry)it.next();
+		//			System.out.println((Integer)pair.getKey());
+		//			if ((Integer)pair.getKey()==nb){
+		//				System.out.println("aloha");
+		//			}
+		//		}
+
+
+
+		//		System.out.println("Here: " + linkList.get(1).isEnabled);
+		//		System.out.println(nb);
+
+		//		Link l = linkList.get(nb);
+
 		if(linkList.containsKey(nextHopId)) {
 			if (this.linkList.get(nextHopId).isEnabled()){
 				f.setDst(nextHopId);
@@ -107,16 +98,22 @@ public class LinkLayer {
 		if (CPE701.DEBUG) System.out.println("L2: Received");
 		
 		Frame f = (Frame) packet;
-		IPDatagram i = f.getPayload();
 		
-		String recCRC = f.getCRC();
-		String calcCRC = f.computeCRC();
-		f.setCRC(recCRC);
+//		System.out.println("L2: from="+f.getSrc()+", to="+f.getDst());
 		
-		if (recCRC.equals(calcCRC)){
-			if (f.getDst() == this.MAC_ID){
-				this.net.receive(i);
-			} 
+		if (linkList.get(f.getSrc()).isEnabled){
+
+			IPDatagram i = f.getPayload();
+
+			String recCRC = f.getCRC();
+			String calcCRC = f.computeCRC();
+			f.setCRC(recCRC);
+
+			if (recCRC.equals(calcCRC)){
+				if (f.getDst() == this.MAC_ID){
+					this.net.receive(i);
+				} 
+			}
 		}
 	}
 
@@ -155,8 +152,8 @@ public class LinkLayer {
 	public void setMAC_ID(int mAC_ID) {
 		MAC_ID = mAC_ID;
 	}
-	
-	
+
+
 	public void disableLink(int nb){
 		if(linkList.containsKey(nb)) {
 			if (linkList.get(nb).isEnabled() == false) {
@@ -181,7 +178,7 @@ public class LinkLayer {
 			System.out.println("L2: failure, node "+nb+" does not exist");
 		}
 	}
-	
+
 	public class Link {
 		private boolean isEnabled=true;
 		private int MTU;

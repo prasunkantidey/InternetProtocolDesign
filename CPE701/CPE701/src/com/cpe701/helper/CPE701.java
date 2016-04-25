@@ -133,7 +133,9 @@ public class CPE701 {
 					//remove dict with key = sid
 					break;
 				case CONNECT:
-					// create a dict with sid/node_ip
+					// handshake
+					// cid/app dict in tcp layer
+					
 					break;
 				case CLOSE:
 					break;
@@ -142,7 +144,6 @@ public class CPE701 {
 					String fname = input.get(2);
 					Data d = new Data();
 					d.setCommand(fname);
-
 //					app.setFileName("tmp_" + fname);
 
 //					app.send(d);
@@ -152,7 +153,7 @@ public class CPE701 {
 						System.out.println("Invalid input. Please check \"help\"");
 					}else{
 						link.enableLink(Integer.parseInt(input.get(1)));
-						// in 10 secs the network will converge because of hello timer
+						net.updateTableByLinkUp(Integer.parseInt(input.get(1)));
 					}
 					break;
 				case LINK_DOWN:
