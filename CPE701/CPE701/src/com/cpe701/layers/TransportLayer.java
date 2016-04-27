@@ -14,24 +14,31 @@ public class TransportLayer {
 
 	private NetworkLayer net;
 	private Map<Integer,AppLayer> appList = new HashMap<>();
+	private AppLayer app;
 	private int MSS=2000;
 	
+	public AppLayer getApp() {
+		return app;
+	}
+
+	
+	// After connections are implemented, remove this get/set
+	public void setApp(AppLayer app) {
+		this.app = app;
+	}
 	public void debug() {
 		if (CPE701.DEBUG) System.out.println("L4: Debug");
 	}
+	//
 	
-	public void send(Data d) {
+	public void send(Data d, int cid) {
 		if (CPE701.DEBUG) System.out.println("L4: Sent");
 		Segment s = new Segment();
-		int T = d.getB().length/MSS;
-		for (int i = 0; i < T; i++) {
-			
-		}
 		
 		s.setPayload(d);
 		
-		
-//		this.net.send(s);
+		//destination must be translated to an IP address (), right now its known
+		this.net.send(s,cid); 
 	}
 
 	public void receive(Packet packet) {
@@ -43,6 +50,7 @@ public class TransportLayer {
 		
 		
 //		this.app.receive(s.getPayload());
+		this.app.receive(s);
 	}
 
 	/**

@@ -65,12 +65,12 @@ public class CPE701 {
 		LinkLayer link = new LinkLayer(itcConfigList, nID);
 		NetworkLayer net = new NetworkLayer(itcConfigList, nID);
 		TransportLayer transport = new TransportLayer();
-		//		AppLayer app = new AppLayer();
-
+			AppLayer app = new AppLayer();
+			
 		//  Assign pointers to adjacent layers so they can talk to each other
-		//		app.setTransport(transport);
+				app.setTransport(transport);
 		transport.setNet(net);
-		//		transport.setApp(app);
+				transport.setApp(app);
 		net.setLink(link);
 		net.setTransport(transport);
 
@@ -111,9 +111,8 @@ public class CPE701 {
 				case START_SERVICE:
 					if (input.size() !=2) {
 						System.out.println("Invalid input. Please check \"help\"");
-					}else{
-						AppLayer app = new AppLayer();					
-						if (transport.listenPort(Integer.parseInt(input.get(1)),app)){
+					}else{					
+						if (transport.listenPort(Integer.parseInt(input.get(1)),new AppLayer())){
 							System.out.println("SUCCESS: sid="+Integer.parseInt(input.get(1))+"\n");
 						}else{
 							System.out.println("FAILURE: sid="+Integer.parseInt(input.get(1))+" in use");
@@ -138,15 +137,17 @@ public class CPE701 {
 					
 					break;
 				case CLOSE:
+					//send fyn
 					break;
 				case DOWNLOAD:
 					int cid = Integer.parseInt(input.get(1));
+					
 					String fname = input.get(2);
 					Data d = new Data();
 					d.setCommand(fname);
-//					app.setFileName("tmp_" + fname);
-
-//					app.send(d);
+					app.setFileName("tmp_" + fname);
+					
+					app.send(d,cid);
 					break;
 				case LINK_UP:
 					if (input.size() !=2) {
@@ -197,7 +198,8 @@ public class CPE701 {
 					break;
 				}
 			} catch (Exception e) {
-				System.out.println("aInvalid input. Please check \"help\"");
+				System.out.println("Invalid input. Please check \"help\"");
+				System.out.println(":"+e.getMessage());
 			}
 
 

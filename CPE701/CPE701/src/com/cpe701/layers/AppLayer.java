@@ -12,8 +12,9 @@ import com.cpe701.helper.CPE701;
 import com.cpe701.helper.Layer;
 import com.cpe701.helper.Packet;
 import com.cpe701.packets.Data;
+import com.cpe701.packets.Segment;
 
-public class AppLayer implements Layer {
+public class AppLayer {
 	
 	private TransportLayer transport;
 	private String fileName;
@@ -22,8 +23,9 @@ public class AppLayer implements Layer {
 		if (CPE701.DEBUG) System.out.println("L5: Debug");
 	}
 	
-	public void send(Packet packet) {
+	public void send(Packet packet, int cid) {
 		if (CPE701.DEBUG) System.out.println("L5: Sent");
+		
 		Data d = (Data) packet;
 		File f = new File(this.fileName); 
 		try {
@@ -32,24 +34,24 @@ public class AppLayer implements Layer {
 			e.printStackTrace();
 		}
 		
-		this.transport.send(d);
+		this.transport.send(d,cid);
 	}
 
 	public void receive(Packet packet) {
 		if (CPE701.DEBUG) System.out.println("L5: Received");
 		
-		Data d = (Data) packet;
+		Data d = ((Segment) packet).getPayload();
 		
 		if (d.getCommand() != null) {
-			Data d2 = new Data();
 			Path p = Paths.get(d.getCommand());
+			System.out.println(p.toString());
 			try {
-				d2.setB(Files.readAllBytes(p));
+				d.setB(Files.readAllBytes(p));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			d2.setCommand(null);
-			this.send(d2);
+			d.setCommand(null);
+			this.transport.send(d,3);	// change to src port
 		}else{
 			File f = new File(this.fileName);
 			FileOutputStream output=null;
