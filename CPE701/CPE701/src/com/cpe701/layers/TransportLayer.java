@@ -32,7 +32,6 @@ public class TransportLayer {
 		s.setData(d);
 		Connection c = getConnFromMultiple(localPort,remotePort);
 		int ip = c.getDstIP();
-		System.out.println("DST ip: "+ip);
 
 		s.setSrcPort(localPort);
 		s.setDstPort(c.getId());
@@ -84,12 +83,15 @@ public class TransportLayer {
 				int src = s .getDstPort();
 				s.setSrcPort(src);
 				s.setDstPort(dst);
+				s.setSyn(false);
 				s.setFyn(true);
 				s.setAck(true);
 				this.net.send(s, i.getSourceIP());
+				System.out.println("SUCCESS: connection="+s.getDstPort()+" closed");
 			}
 		}else if (!s.isSyn() && s.isAck() && s.isFyn()){
 			removeConn(s.getDstPort(), s.getSrcPort(), i.getSourceIP());
+			System.out.println("SUCCESS: connection="+s.getDstPort()+" closed");
 		}else if (!s.isSyn() && !s.isAck() && !s.isFyn()){
 			Connection c = findConn(s.getDstPort(), s.getSrcPort(), i.getSourceIP());
 			if (c.getStatus() == ConnStatus.CONNECTED) {
@@ -103,15 +105,15 @@ public class TransportLayer {
 			}
 		}else if (s.isSyn() && s.isAck() && s.isFyn()){
 			removeConn(s.getDstPort(), s.getSrcPort(), i.getSourceIP());
-			System.out.println("FAILURE: node="+i.getSourceIP()+" ,rejected the connection");
+			System.out.println("FAILURE: node="+i.getSourceIP()+", rejected the connection");
 		}
-		
-		
-//		this.app.receive(s.getPayload());
-//		this.app.receive(s);
 	}
 
 
+	public boolean cidExists(int cid){
+		return connList.containsKey(cid);
+	}
+	
 	public NetworkLayer getNet() {
 		return net;
 	}
@@ -119,12 +121,10 @@ public class TransportLayer {
 		this.net = net;
 	}
 
-	
-	
 	private void removeConn(int sid, int id, int dst){
 		ArrayList<Connection> cl = connList.get(sid);
 		for (Connection c : cl) {
-			if (c.getId() == id && c.getDstIP() == dst) cl.remove(c);
+			if (c.getId() == id && c.getDstIP() == dst) c=null;
 		}
 	}
 	private Connection findConn(int sid, int id, int dst){
@@ -189,7 +189,19 @@ public class TransportLayer {
 		}
 	}
 	
-	
+	public void close(int cid){
+		Connection c = getOneConn(cid);
+		int dst = c.getId();
+		int src = cid;
+		int ip = c.getDstIP();
+		
+		Segment s = new Segment();
+		s.setFyn(true);
+		s.setDstPort(dst);
+		s.setSrcPort(src);
+		
+		this.net.send(s, ip);	
+	}
 	
 	public void connect(int IP, int sid){
 		int cid = ThreadLocalRandom.current().nextInt(1,256);
