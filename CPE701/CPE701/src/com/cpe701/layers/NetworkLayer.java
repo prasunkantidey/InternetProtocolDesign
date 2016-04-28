@@ -24,16 +24,6 @@ public class NetworkLayer {
 
 	public void debug() {
 		if (CPE701.DEBUG) System.out.println("L3: Debug");
-		
-		/// To test forward, from node 3 to 1
-		IPDatagram i = new IPDatagram();
-		i.setDestinationIP(1);
-		i.setSourceIP(this.IP_ID);
-
-		i.setPayload(null);
-
-		this.link.send(i,lookUpNextHop(1));
-		///
 	}
 
 	public NetworkLayer(List<ITCConfiguration> itcList, int nodeId) {
@@ -163,7 +153,7 @@ public class NetworkLayer {
 		while(it.hasNext()){
 			Map.Entry pair = (Map.Entry)it.next();
 			RoutingTableEntry rt = (RoutingTableEntry)pair.getValue();
-			if (rt.getNextHop() == nh) routingTable.remove(pair.getKey()); 
+			if (rt.getNextHop() == nh) it.remove();//routingTable.remove((int)pair.getKey()); 
 		}
 	}
 	public void updateTableByLinkUp(int nh){
@@ -183,7 +173,8 @@ public class NetworkLayer {
 			Map.Entry pair = (Map.Entry)it.next();
 			RoutingTableEntry rt = (RoutingTableEntry)pair.getValue();
 			int dst = (int)pair.getKey();
-			System.out.println(dst + "\t\t" + rt.getNextHop() + "\t\t" + rt.getHopCount() +"");
+			if (rt != null)
+				System.out.println(dst + "\t\t" + rt.getNextHop() + "\t\t" + rt.getHopCount() +"");
 		}
 	}
 

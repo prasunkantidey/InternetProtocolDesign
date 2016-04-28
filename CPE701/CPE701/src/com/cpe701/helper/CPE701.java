@@ -222,7 +222,7 @@ public class CPE701 {
 				}
 			} catch (Exception e) {
 				System.out.println("Invalid input. Please check \"help\"");
-				System.out.println("> ");
+				System.out.println("Error: "+e.getMessage());
 			}
 		}
 	}

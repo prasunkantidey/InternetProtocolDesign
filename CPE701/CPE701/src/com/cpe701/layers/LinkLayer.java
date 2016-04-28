@@ -57,30 +57,6 @@ public class LinkLayer {
 		IPDatagram i = (IPDatagram) packet;
 		f.setPayload(i);
 
-
-
-
-
-
-
-		//		int nb = i.getDestinationIP(); // THIS MUST BE SENT FROM UPPER LAYER, FROM ARP
-
-		//		Iterator it = linkList.entrySet().iterator();
-		//		while(it.hasNext()){
-		//			Map.Entry pair = (Map.Entry)it.next();
-		//			System.out.println((Integer)pair.getKey());
-		//			if ((Integer)pair.getKey()==nb){
-		//				System.out.println("aloha");
-		//			}
-		//		}
-
-
-
-		//		System.out.println("Here: " + linkList.get(1).isEnabled);
-		//		System.out.println(nb);
-
-		//		Link l = linkList.get(nb);
-
 		if(linkList.containsKey(nextHopId)) {
 			if (this.linkList.get(nextHopId).isEnabled()){
 				f.setDst(nextHopId);
@@ -99,8 +75,6 @@ public class LinkLayer {
 		
 		Frame f = (Frame) packet;
 		
-//		System.out.println("L2: from="+f.getSrc()+", to="+f.getDst());
-		
 		if (linkList.get(f.getSrc()).isEnabled){
 
 			IPDatagram i = f.getPayload();
@@ -116,43 +90,24 @@ public class LinkLayer {
 			}
 		}
 	}
-
-	/**
-	 * @return the phy
-	 */
 	public PhysicalLayer getPhy() {
 		return phy;
 	}
-
-	/**
-	 * @param phy the phy to set
-	 */
 	public void setPhy(PhysicalLayer phy) {
 		this.phy = phy;
 	}
-
-	/**
-	 * @return the net
-	 */
 	public NetworkLayer getNet() {
 		return net;
 	}
-
-	/**
-	 * @param net the net to set
-	 */
 	public void setNet(NetworkLayer net) {
 		this.net = net;
 	}
-
 	public int getMAC_ID() {
 		return MAC_ID;
 	}
-
 	public void setMAC_ID(int mAC_ID) {
 		MAC_ID = mAC_ID;
 	}
-
 
 	public void disableLink(int nb){
 		if(linkList.containsKey(nb)) {
