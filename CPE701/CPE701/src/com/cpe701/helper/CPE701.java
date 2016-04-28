@@ -14,13 +14,18 @@ import com.cpe701.layers.LinkLayer;
 import com.cpe701.layers.NetworkLayer;
 import com.cpe701.layers.PhysicalLayer;
 import com.cpe701.layers.TransportLayer;
+import com.cpe701.layers.TransportLayer.Connection;
 import com.cpe701.packets.Data;
+import com.cpe701.packets.Segment;
 
 
 public class CPE701 {
 	public static boolean DEBUG = false;
 	public enum UserCommand {
 		HELP, START_SERVICE, STOP_SERVICE, CONNECT, CLOSE, DOWNLOAD, SET_GARBLER, ROUTE_TABLE, LINK_UP, LINK_DOWN, DEBUG, EXIT;
+	};
+	public enum ConnStatus {
+		LISTENING, CONNECTED, WAITING;
 	};
 
 	public static void main(String[] args) throws IOException {
@@ -65,12 +70,12 @@ public class CPE701 {
 		LinkLayer link = new LinkLayer(itcConfigList, nID);
 		NetworkLayer net = new NetworkLayer(itcConfigList, nID);
 		TransportLayer transport = new TransportLayer();
-			AppLayer app = new AppLayer();
+//			AppLayer app = new AppLayer();
 			
 		//  Assign pointers to adjacent layers so they can talk to each other
-				app.setTransport(transport);
+//				app.setTransport(transport);
 		transport.setNet(net);
-				transport.setApp(app);
+//				transport.setApp(app);
 		net.setLink(link);
 		net.setTransport(transport);
 
@@ -112,18 +117,15 @@ public class CPE701 {
 					if (input.size() !=2) {
 						System.out.println("Invalid input. Please check \"help\"");
 					}else{					
-						if (transport.listenPort(Integer.parseInt(input.get(1)),new AppLayer())){
-							System.out.println("SUCCESS: sid="+Integer.parseInt(input.get(1))+"\n");
-						}else{
-							System.out.println("FAILURE: sid="+Integer.parseInt(input.get(1))+" in use");
-						}
+						int sid = transport.startService(Integer.parseInt(input.get(1)));
+						System.out.println("SUCCESS: sid="+sid+", max-conn="+Integer.parseInt(input.get(1)));
 					}
 					break;
 				case STOP_SERVICE:
 					if (input.size() !=2) {
 						System.out.println("Invalid input. Please check \"help\"");
 					}else{
-						if (transport.stopListenPort(Integer.parseInt(input.get(1)))){
+						if (transport.stopService(Integer.parseInt(input.get(1)))){
 							System.out.println("SUCCESS: sid="+Integer.parseInt(input.get(1))+" terminated\n");
 						}else{
 							System.out.println("FAILURE: sid="+Integer.parseInt(input.get(1))+" not in use");
@@ -132,9 +134,15 @@ public class CPE701 {
 					//remove dict with key = sid
 					break;
 				case CONNECT:
-					// handshake
-					// cid/app dict in tcp layer
-					
+					if (input.size() !=3) {
+						System.out.println("Invalid input. Please check \"help\"");
+					}else{
+						// handshake
+						// cid/app dict in tcp layer
+						int ip = Integer.parseInt(input.get(1));
+						int sid = Integer.parseInt(input.get(2));
+						transport.connect(ip, sid);	
+					}
 					break;
 				case CLOSE:
 					//send fyn
@@ -145,9 +153,11 @@ public class CPE701 {
 					String fname = input.get(2);
 					Data d = new Data();
 					d.setCommand(fname);
-					app.setFileName("tmp_" + fname);
-					
-					app.send(d,cid);
+					d.setB(null);
+					AppLayer a = transport.getAppFromCid(cid);
+					a.setFileName(fname);
+					Connection c = transport.getOneConn(cid);
+					transport.send(d,cid,c.getId());
 					break;
 				case LINK_UP:
 					if (input.size() !=2) {
@@ -199,13 +209,9 @@ public class CPE701 {
 				}
 			} catch (Exception e) {
 				System.out.println("Invalid input. Please check \"help\"");
-				System.out.println(":"+e.getMessage());
+				System.out.println("> ");
 			}
-
-
 		}
-
-
 	}
 }
 
@@ -236,15 +242,13 @@ class PrintMenu {
 	}
 
 	String getUserInput() {
-		System.out.print(">>> ");
+		System.out.print("> ");
 		String input = "";
 		try {
 			input = br.readLine();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return input;
 	}
 

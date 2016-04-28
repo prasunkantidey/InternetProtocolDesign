@@ -71,7 +71,7 @@ public class NetworkLayer {
 		
 		if (i.getProtocolVersion() == 0) {
 
-			Segment s = i.getPayload();
+//			Segment s = i.getPayload();
 
 			String recCRC = i.getChecksum();
 			String calcCRC = i.calculateChecksum();
@@ -81,7 +81,7 @@ public class NetworkLayer {
 				if (i.getDestinationIP() == this.IP_ID) {
 
 					// Surround this line if implementing fragmentation
-					this.transport.receive(s);
+					this.transport.receive(i);
 
 				} else {
 					// FORWARD
