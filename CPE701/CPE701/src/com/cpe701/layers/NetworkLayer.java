@@ -79,7 +79,7 @@ public class NetworkLayer {
 					this.link.send(i,lookUpNextHop(i.getDestinationIP()));
 				}
 			} else {
-				System.out.println("CRC did not match!");
+				System.out.println("L3: wrong CRC, dropped");
 			}
 		} else {
 

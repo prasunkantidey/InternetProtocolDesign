@@ -42,7 +42,7 @@ public class AppLayer {
 //	}
 
 	public void receive(Packet packet) {
-		if (CPE701.DEBUG)
+//		if (CPE701.DEBUG)
 			System.out.println("L5: Received");
 		
 		Data d = ((Segment) packet).getData();

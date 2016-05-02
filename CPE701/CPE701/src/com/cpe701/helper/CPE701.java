@@ -207,6 +207,7 @@ public class CPE701 {
 					}
 					break;
 				case DEBUG:
+					DEBUG=true;
 					transport.debug();
 					net.debug();
 					link.debug();

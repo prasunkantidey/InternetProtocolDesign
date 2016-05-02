@@ -87,6 +87,8 @@ public class LinkLayer {
 				if (f.getDst() == this.MAC_ID){
 					this.net.receive(i);
 				} 
+			}else{
+				System.out.println("L2: wrong CRC, dropped");
 			}
 		}
 	}
